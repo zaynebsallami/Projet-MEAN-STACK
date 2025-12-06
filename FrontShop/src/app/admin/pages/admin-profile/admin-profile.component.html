@@ -1,0 +1,176 @@
+<div class="admin-profile-container">
+  <button class="back-button" (click)="goBack()">
+    <svg class="back-icon" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    </svg>
+  </button>
+
+  <div class="profile-header">
+    <img [src]="adminData?.avatar || 'https://www.gravatar.com/avatar/default?d=mp'" 
+         alt="{{ 'ADMIN_PROFILE.AVATAR_ALT' | translate }}" 
+         class="avatar">
+    
+    <div class="header-info">
+      <h1>{{ adminData?.firstName }} {{ adminData?.lastName }}</h1>
+      <p class="email">{{ adminData?.email }}</p>
+      <p class="role">{{ 'ADMIN_PROFILE.ROLE' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="admin-details">
+    <!-- Full Name -->
+    <div class="detail-item">
+      <div class="icon-container">
+        <svg class="detail-icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
+        </svg>
+      </div>
+      <div class="detail-content">
+        <div class="detail-label">{{ 'ADMIN_PROFILE.FULL_NAME' | translate }}</div>
+        <div class="detail-value">{{ adminData?.firstName }} {{ adminData?.lastName }}</div>
+      </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="detail-item" *ngIf="adminData?.phone">
+      <div class="icon-container">
+        <svg class="detail-icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
+        </svg>
+      </div>
+      <div class="detail-content">
+        <div class="detail-label">{{ 'ADMIN_PROFILE.PHONE' | translate }}</div>
+        <div class="detail-value">{{ adminData.phone }}</div>
+      </div>
+    </div>
+
+    <!-- Member Since -->
+    <div class="detail-item">
+      <div class="icon-container">
+        <svg class="detail-icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/>
+        </svg>
+      </div>
+      <div class="detail-content">
+        <div class="detail-label">{{ 'ADMIN_PROFILE.MEMBER_SINCE' | translate }}</div>
+        <div class="detail-value">{{ adminData?.createdAt | date:'dd/MM/yyyy' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-actions">
+    <button mat-stroked-button class="edit-button" (click)="toggleEdit()">
+      <svg class="action-icon" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+      </svg>
+      {{ 'ADMIN_PROFILE.EDIT_PROFILE' | translate }}
+    </button>
+    
+    <button mat-stroked-button class="password-button" (click)="togglePasswordChange()" *ngIf="!isEditing">
+      <svg class="action-icon" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12,3A4,4 0 0,0 8,7V8H7A1,1 0 0,0 6,9V19A1,1 0 0,0 7,20H17A1,1 0 0,0 18,19V9A1,1 0 0,0 17,8H16V7A4,4 0 0,0 12,3M12,5A2,2 0 0,1 14,7V8H10V7A2,2 0 0,1 12,5M10,13H12V17H10V13Z"/>
+      </svg>
+      {{ 'ADMIN_PROFILE.CHANGE_PASSWORD' | translate }}
+    </button>
+  </div>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" *ngIf="isEditing">
+    <!-- First Name Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.FIRST_NAME' | translate }}*</mat-label>
+      <input matInput formControlName="firstName" required>
+      <mat-error *ngIf="profileForm.get('firstName')?.errors?.['required']">
+        {{ 'ADMIN_PROFILE.FIRST_NAME_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Last Name Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.LAST_NAME' | translate }}*</mat-label>
+      <input matInput formControlName="lastName" required>
+      <mat-error *ngIf="profileForm.get('lastName')?.errors?.['required']">
+        {{ 'ADMIN_PROFILE.LAST_NAME_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Email Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.EMAIL' | translate }}*</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="profileForm.get('email')?.errors?.['required']">
+        {{ 'ADMIN_PROFILE.EMAIL_REQUIRED' | translate }}
+      </mat-error>
+      <mat-error *ngIf="profileForm.get('email')?.errors?.['email']">
+        {{ 'ADMIN_PROFILE.EMAIL_INVALID' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Phone Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.PHONE' | translate }}*</mat-label>
+      <input matInput formControlName="phone">
+      <mat-hint>{{ 'ADMIN_PROFILE.PHONE_FORMAT' | translate }}</mat-hint>
+      <mat-error *ngIf="profileForm.get('phone')?.errors?.['required']">
+        {{ 'ADMIN_PROFILE.PHONE_REQUIRED' | translate }}
+      </mat-error>
+      <mat-error *ngIf="profileForm.get('phone')?.errors?.['pattern']">
+        {{ 'ADMIN_PROFILE.PHONE_INVALID' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Birth Date Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.BIRTH_DATE' | translate }}</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="birthDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Address Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'ADMIN_PROFILE.ADDRESS' | translate }}</mat-label>
+      <textarea matInput formControlName="address" rows="3"></textarea>
+    </mat-form-field>
+
+    <!-- Password Change Section -->
+    <div *ngIf="showPasswordFields" class="password-section">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ADMIN_PROFILE.CURRENT_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="oldPassword" required>
+        <mat-error *ngIf="profileForm.get('oldPassword')?.hasError('required')">
+          {{ 'ADMIN_PROFILE.CURRENT_PASSWORD_REQUIRED' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ADMIN_PROFILE.NEW_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="newPassword" required>
+        <mat-error *ngIf="profileForm.get('newPassword')?.hasError('minlength')">
+          {{ 'ADMIN_PROFILE.PASSWORD_MIN_LENGTH' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ADMIN_PROFILE.CONFIRM_PASSWORD' | translate }}</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required>
+        <mat-error *ngIf="profileForm.hasError('mismatch')">
+          {{ 'ADMIN_PROFILE.PASSWORD_MISMATCH' | translate }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button mat-raised-button type="button" (click)="toggleEdit()">
+        {{ 'ADMIN_PROFILE.CANCEL' | translate }}
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              type="submit"
+              [disabled]="profileForm.invalid || isLoading">
+        {{ isLoading ? ('ADMIN_PROFILE.SAVING' | translate) : ('ADMIN_PROFILE.SAVE' | translate) }}
+      </button>
+    </div>
+  </form>
+</div>

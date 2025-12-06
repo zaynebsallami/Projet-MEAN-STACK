@@ -1,0 +1,167 @@
+<div class="data-table-container">
+    <div class="table-toolbar" *ngIf="showToolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="Search..." 
+          [(ngModel)]="searchTerm" 
+          (input)="applyFilter()"
+        >
+      </div>
+      
+      <div class="table-actions">
+        <button class="btn btn-outline" (click)="resetFilters()">
+          <i class="fas fa-redo"></i> Reset
+        </button>
+        
+        <div class="dropdown">
+          <button class="btn btn-outline">
+            <i class="fas fa-download"></i> Export
+          </button>
+          <div class="dropdown-menu">
+            <button (click)="exportData('csv')">CSV</button>
+            <button (click)="exportData('excel')">Excel</button>
+            <button (click)="exportData('pdf')">PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let column of columns" [ngClass]="{ 'sortable': column.sortable !== false }" (click)="sort(column.key)">
+              {{ column.title }}
+              <i *ngIf="column.sortable !== false" class="fas" [ngClass]="{
+                'fa-sort': sortColumn !== column.key,
+                'fa-sort-up': sortColumn === column.key && sortDirection === 'asc',
+                'fa-sort-down': sortColumn === column.key && sortDirection === 'desc'
+              }"></i>
+            </th>
+            <th *ngIf="actions && actions.length > 0">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredData">
+            <td *ngFor="let column of columns">
+              <!-- Image column -->
+              <div *ngIf="column.type === 'image'" class="table-image">
+                <img [src]="item[column.key]" [alt]="item.name || 'Image'">
+              </div>
+              
+              <!-- Avatar column -->
+              <div *ngIf="column.type === 'avatar'" class="table-avatar">
+                <img [src]="item[column.key]" [alt]="item.name || 'Avatar'">
+              </div>
+              
+              <!-- Badge column -->
+              <div *ngIf="column.type === 'badge'" class="badge" [ngClass]="getBadgeClass(item[column.key])">
+                {{ item[column.key] }}
+              </div>
+              
+              <!-- Boolean column -->
+              <div *ngIf="column.type === 'boolean'" class="boolean-indicator">
+                <i class="fas" [ngClass]="item[column.key] ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'"></i>
+                <span>{{ item[column.key] ? 'Active' : 'Inactive' }}</span>
+              </div>
+              
+              <!-- Stock column -->
+              <div *ngIf="column.type === 'stock'" class="stock-indicator" [ngClass]="{
+                'low-stock': item[column.key] > 0 && item[column.key] < 10,
+                'out-of-stock': item[column.key] === 0
+              }">
+                <i class="fas" [ngClass]="item[column.key] === 0 ? 'fa-times-circle' : (item[column.key] < 10 ? 'fa-exclamation-circle' : 'fa-check-circle')"></i>
+                <span>{{ item[column.key] }} in stock</span>
+              </div>
+              
+              <!-- Status column with dropdown -->
+              <div *ngIf="column.type === 'status' && statusOptions && statusOptions.length > 0" class="status-dropdown">
+                <select 
+                  [value]="item[column.key]" 
+                  (change)="updateStatus(item, column.key, $event)"
+                  [ngClass]="getBadgeClass(item[column.key])"
+                >
+                  <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+              
+              <!-- Currency column -->
+              <span *ngIf="column.type === 'currency'">{{ item[column.key] | currency }}</span>
+              
+              <!-- Date column -->
+              <span *ngIf="column.type === 'date'">{{ item[column.key] | date }}</span>
+              
+              <!-- Default column -->
+              <span *ngIf="!column.type">{{ item[column.key] }}</span>
+            </td>
+            
+            <!-- Actions column -->
+            <td *ngIf="actions && actions.length > 0" class="actions-cell">
+              <div class="table-actions">
+                <button 
+                  *ngFor="let action of actions" 
+                  class="btn-icon" 
+                  [ngClass]="action.class || ''"
+                  (click)="handleAction(action.action, item)"
+                  [title]="action.label"
+                >
+                  <i [class]="'fas fa-' + action.icon"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Empty state -->
+          <tr *ngIf="filteredData.length === 0">
+            <td [attr.colspan]="columns.length + (actions && actions.length > 0 ? 1 : 0)" class="empty-state">
+              <div>
+                <i class="fas fa-search"></i>
+                <p>No data found</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="showPagination && totalPages > 1">
+      <button 
+        class="btn-icon" 
+        [disabled]="currentPage === 1"
+        (click)="goToPage(1)"
+      >
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+      
+      <button 
+        class="btn-icon" 
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+      >
+        <i class="fas fa-angle-left"></i>
+      </button>
+      
+      <div class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </div>
+      
+      <button 
+        class="btn-icon" 
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+      >
+        <i class="fas fa-angle-right"></i>
+      </button>
+      
+      <button 
+        class="btn-icon" 
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(totalPages)"
+      >
+        <i class="fas fa-angle-double-right"></i>
+      </button>
+    </div>
+  </div>

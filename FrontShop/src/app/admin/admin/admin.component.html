@@ -1,0 +1,765 @@
+<div class="admin-container" [ngClass]="{'dark-mode': isDarkMode}">
+  <app-sidebar
+    [isCollapsed]="isCollapsed()" 
+    [activeTab]="activeTab()"
+    (tabChange)="setActiveTab($event)">
+  </app-sidebar>
+
+  <div class="main-content" [class.expanded]="isCollapsed()">
+    <app-header 
+      [notifications]="notifications()" 
+      (toggleSidebar)="toggleSidebar()"
+      (toggleTheme)="toggleTheme()">
+    </app-header>
+    
+    <div class="contlogouent-wrapper">
+      <div *ngIf="isLoading()" class="loading-container" @fadeInOut>
+        <div class="spinner"></div>
+        <p>{{ 'COMMON.LOADING' | translate }}</p>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div *ngIf="!isLoading() && activeTab() === 'dashboard'" @fadeInOut>
+        <div class="dashboard-header">
+          <h1>{{ 'DASHBOARD.TITLE' | translate }}</h1>
+          <div class="actions">
+            <button class="btn btn-outline" (click)="loadDashboardData()">
+              <i class="fas fa-sync-alt"></i> {{ 'DASHBOARD.REFRESH' | translate }}
+            </button>
+            <div class="dropdown">
+              <button class="btn btn-primary">
+                <i class="fas fa-download"></i> {{ 'DASHBOARD.EXPORT' | translate }}
+              </button>
+              <div class="dropdown-menu">
+                <button (click)="exportData('csv')">{{ 'DASHBOARD.CSV' | translate }}</button>
+                <button (click)="exportData('xlsx')">{{ 'DASHBOARD.EXCEL' | translate }}</button>
+                <button (click)="exportData('pdf')">{{ 'DASHBOARD.PDF' | translate }}</button>
+              </div>
+            </div>
+          </div>
+        </div><br>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <app-stat-card 
+            icon="users" 
+            [title]="'DASHBOARD.TOTAL_USERS' | translate" 
+            [value]="dashboardStats()?.totalUsers" 
+            trend="+12.5%"
+            trendDirection="up"
+            color="blue">
+          </app-stat-card>
+          
+          <app-stat-card 
+            icon="shopping-bag" 
+            [title]="'DASHBOARD.TOTAL_PRODUCTS' | translate" 
+            [value]="dashboardStats()?.totalProducts" 
+            trend="+8.2%"
+            trendDirection="up"
+            color="green">
+          </app-stat-card>
+          
+          <app-stat-card 
+            icon="shopping-cart" 
+            [title]="'DASHBOARD.TOTAL_ORDERS' | translate" 
+            [value]="dashboardStats()?.totalOrders" 
+            trend="+15.7%"
+            trendDirection="up"
+            color="purple">
+          </app-stat-card>
+          
+          <app-stat-card 
+            icon="dollar-sign" 
+            [title]="'DASHBOARD.TOTAL_REVENUE' | translate" 
+            [value]="dashboardStats()?.totalRevenue ?? 0"
+            trend="+10.3%"
+            trendDirection="up"
+            color="orange">
+          </app-stat-card>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2>{{ 'DASHBOARD.SALES_OVERVIEW' | translate }}</h2>
+              <div class="chart-actions">
+                <button class="btn-icon">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+            <app-chart
+              type="line" 
+              [data]="salesData()" 
+              xKey="date" 
+              yKey="amount"
+              [options]="{ responsive: true, maintainAspectRatio: false }">
+            </app-chart>
+          </div>
+          
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2>{{ 'DASHBOARD.USER_GROWTH' | translate }}</h2>
+              <div class="chart-actions">
+                <button class="btn-icon">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+            <app-chart 
+              type="bar" 
+              [data]="userGrowthData()" 
+              xKey="date" 
+              yKey="count"
+              [options]="{ responsive: true, maintainAspectRatio: false }">
+            </app-chart>
+          </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="two-column">
+          <!-- Popular Products -->
+          <div class="table-card table-card--spaced">
+            <div class="table-header">
+              <h2>{{ 'DASHBOARD.POPULAR_PRODUCTS' | translate }}</h2>
+            </div>
+            <app-data-table 
+              [data]="popularProducts()" 
+              [columns]="[
+                { key: 'image', title: '', type: 'image' },
+                { key: 'name', title: 'PRODUCTS.PRODUCT' | translate },
+                { key: 'price', title: 'PRODUCTS.PRICE' | translate, type: 'currency' },
+                { key: 'sales', title: 'PRODUCTS.SALES' | translate },
+                { key: 'stock', title: 'PRODUCTS.STOCK' | translate, type: 'stock' }
+              ]"
+              [actions]="[
+                { label: 'ACTIONS.VIEW' | translate, icon: 'eye', action: 'view' },
+                { label: 'ACTIONS.EDIT' | translate, icon: 'edit', action: 'edit' }
+              ]">
+            </app-data-table>
+          </div>
+
+          <!-- Recent Users -->
+          <div class="table-card">
+            <div class="table-header">
+              <h2>{{ 'USERS.RECENT_USERS' | translate }}</h2>
+            </div>
+            <app-data-table
+              [data]="recentUsers()"
+              [columns]="[
+                { key: 'avatar', title: '', type: 'avatar' },
+                { key: 'name', title: 'USERS.NAME' | translate },
+                { key: 'email', title: 'USERS.EMAIL' | translate },
+                { key: 'role', title: 'USERS.ROLE' | translate, type: 'badge' },
+                { key: 'active', title: 'USERS.STATUS' | translate, type: 'boolean' }
+              ]"
+              [actions]="[
+                { label: 'ACTIONS.VIEW' | translate, icon: 'eye', action: 'view' },
+                { label: 'ACTIONS.EDIT' | translate, icon: 'edit', action: 'edit' },
+                { label: 'ACTIONS.DELETE' | translate, icon: 'trash', action: 'delete' }
+              ]">
+            </app-data-table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab Content -->
+      <div *ngIf="!isLoading() && activeTab() === 'users'" @fadeInOut>
+        <div class="section-header">
+          <h1>{{ 'USERS.MANAGEMENT' | translate }}</h1>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input 
+                type="text" 
+                [placeholder]="'USERS.SEARCH_PLACEHOLDER' | translate" 
+                (input)="searchTerm.set($any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>{{ 'USERS.AVATAR' | translate }}</th>
+              <th>{{ 'USERS.NAME' | translate }}</th>
+              <th>{{ 'USERS.EMAIL' | translate }}</th>
+              <th>{{ 'USERS.PHONE' | translate }}</th>
+              <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let customer of filteredCustomers">
+              <td>
+                <img [src]="customer.avatar || customer.photo || 'https://www.gravatar.com/avatar/default?d=mp'" width="32" height="32" style="border-radius:50%;">
+              </td>
+              <td>{{ customer.nom || customer.name }}</td>
+              <td>{{ customer.email }}</td>
+              <td>{{ customer.telephone || '-' }}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="deleteUser(customer._id)">
+                  {{ 'ACTIONS.DELETE' | translate }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Products Tab Content -->
+      <div *ngIf="!isLoading() && activeTab() === 'products'" @fadeInOut>
+        <div class="section-header">
+          <h1>{{ 'PRODUCTS.MANAGEMENT' | translate }}</h1>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input 
+                type="text" 
+                [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate" 
+                (input)="searchProductTerm.set($any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+        
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>{{ 'PRODUCTS.NAME' | translate }}</th>
+              <th>{{ 'PRODUCTS.PRICE' | translate }}</th>
+              <th>{{ 'PRODUCTS.CATEGORY' | translate }}</th>
+              <th>{{ 'PRODUCTS.STOCK' | translate }}</th>
+              <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of filteredProducts">
+              <td>{{ product.name }}</td>
+              <td>{{ product.price | currency:'EUR' }}</td>
+              <td>{{ product.category?.name || '-' }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="deleteProduct(product._id)">
+                  {{ 'ACTIONS.DELETE' | translate }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Orders Tab Content -->
+      <div *ngIf="!isLoading() && activeTab() === 'orders'" @fadeInOut>
+        <div class="section-header">
+          <h1>{{ 'ORDERS.MANAGEMENT' | translate }}</h1>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate" 
+                (input)="orderSearchTerm.set($any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Orders Table -->
+        <div class="table-responsive">
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>{{ 'ORDERS.ID' | translate }}</th>
+                <th>{{ 'ORDERS.STORE' | translate }}</th>
+                <th>{{ 'ORDERS.DATE' | translate }}</th>
+                <th>{{ 'ORDERS.PRODUCTS' | translate }}</th>
+                <th>{{ 'ORDERS.TOTAL' | translate }}</th>
+                <th>{{ 'ORDERS.STATUS' | translate }}</th>
+                <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of filteredOrders">
+                <td>#{{order._id | slice:0:8}}</td>
+                <td>
+                  <div class="customer-info">
+                    <span>
+                      {{ 
+                        order.products[0]?.seller?.boutique?.businessName || 
+                        order.products[0]?.seller?.nom || 
+                        ('ORDERS.UNKNOWN_STORE' | translate)
+                      }}
+                    </span>
+                  </div>
+                </td>
+                <td>{{order.createdAt | date:'shortDate'}}</td>
+                <td>
+                  <div class="product-list">
+                    <span *ngFor="let item of order.products" class="product-badge">
+                      {{item.quantity}} × {{item.product?.name || ('PRODUCTS.PRODUCT' | translate)}}
+                    </span>
+                  </div>
+                </td>
+                <td>{{order.total | currency:'EUR'}}</td>
+                <td>
+                  <span class="status-badge" [class]="'status-' + order.status">
+                    {{getStatusText(order.status) | translate}}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-view" (click)="viewOrderDetails(order._id)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+
+                    <select class="status-select" (change)="updateOrderStatus(order._id, $event)">
+                      <option value="pending" [selected]="order.status === 'pending'">{{ 'ORDERS.STATUS_PENDING' | translate }}</option>
+                      <option value="processing" [selected]="order.status === 'processing'">{{ 'ORDERS.STATUS_PROCESSING' | translate }}</option>
+                      <option value="shipped" [selected]="order.status === 'shipped'">{{ 'ORDERS.STATUS_SHIPPED' | translate }}</option>
+                      <option value="delivered" [selected]="order.status === 'delivered'">{{ 'ORDERS.STATUS_DELIVERED' | translate }}</option>
+                      <option value="cancelled" [selected]="order.status === 'cancelled'">{{ 'ORDERS.STATUS_CANCELLED' | translate }}</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div *ngIf="orders().length === 0" class="no-orders">
+            {{ 'ORDERS.NO_ORDERS' | translate }}
+          </div>
+        </div>
+      </div>
+<!-- Categories Tab Content -->
+<div *ngIf="!isLoading() && activeTab() === 'categories'" @fadeInOut>
+  <div class="section-header">
+    <h1>{{ 'CATEGORIES.MANAGEMENT' | translate }}</h1>
+    <div class="actions">
+        <button class="btn btn-primary" (click)="openAddCategoryModal()">
+        <i class="fas fa-plus"></i> {{ 'CATEGORIES.ADD' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des catégories -->
+  <table class="category-table">
+    <thead>
+      <tr>
+        <th>{{ 'CATEGORIES.NAME' | translate }}</th>
+        <th>{{ 'CATEGORIES.SUBCATEGORIES' | translate }}</th>
+        <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let category of categories()">
+        <td>{{ category.name }}</td>
+        <td>
+          <ul>
+            <li *ngFor="let sub of category.subcategories">
+              {{ sub.name }}
+             <button 
+  class="btn btn-sm btn-danger" 
+  style="margin-left: 8px;" 
+  (click)="confirmDeleteSubCategory(category._id, sub._id)">
+{{ 'ACTIONS.DELETE_SUBCATEGORY' | translate }}
+</button>
+
+            </li>
+          </ul>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-success" (click)="openAddSubCategoryModal(category)">
+            {{ 'CATEGORIES.ADD_SUB' | translate }}
+          </button>
+         <button class="btn btn-sm btn-danger" (click)="confirmDeleteCategory(category._id)">
+  {{ 'ACTIONS.DELETE' | translate }}
+</button>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal d'ajout de catégorie -->
+  <div class="modal-backdrop" *ngIf="showAddCategoryModal" @fadeInOut>
+    <div class="modal" @slideInOut>
+      <div class="modal-header">
+        <h2>{{ 'CATEGORIES.ADD' | translate }}</h2>
+        <button class="modal-close" (click)="closeAddCategoryModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #categoryForm="ngForm" (ngSubmit)="onSubmitCategory()">
+          <div class="form-group">
+            <label for="categoryName">{{ 'CATEGORIES.NAME' | translate }}</label>
+            <input 
+              type="text" 
+              id="categoryName" 
+              name="name" 
+              [(ngModel)]="newCategory.name" 
+              required 
+              #name="ngModel"
+              class="form-control"
+              [class.invalid]="name.invalid && name.touched"
+            >
+            <div class="error-message" *ngIf="name.invalid && name.touched">
+              {{ 'VALIDATION.REQUIRED' | translate }}
+            </div>
+          </div>
+
+    
+
+        <!-- Image de la catégorie -->
+        <div class="form-group">
+          <label for="categoryImage">{{ 'CATEGORIES.IMAGE' | translate }}</label>
+          <input 
+            type="file" 
+            id="categoryImage" 
+            (change)="onCategoryImageSelected($event)" 
+            accept="image/*"
+            class="form-control"
+          >
+        </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeAddCategoryModal()">
+              {{ 'ACTIONS.CANCEL' | translate }}
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="categoryForm.invalid || isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner"></span>
+              {{ isSubmitting ? ('ACTIONS.SAVING' | translate) : ('ACTIONS.SAVE' | translate) }}
+            </button>
+          </div>
+          
+        </form>
+      </div>
+      </div>
+      </div>
+      <!-- ✅ Modal Succès -->
+<!-- Modal Succès (en dehors du modal d'ajout) -->
+<div class="modal-backdrop" *ngIf="showSuccessModal" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>✅ {{ 'CATEGORIES.ADD' | translate }}</h2>
+      <button class="modal-close" (click)="showSuccessModal = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>{{ 'MESSAGES.CATEGORY_ADDED' | translate }}</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" (click)="showSuccessModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ❌ Modal Erreur -->
+<div class="modal-backdrop" *ngIf="showErrorModal" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>⚠️ {{ 'CATEGORIES.ADD' | translate }}</h2>
+      <button class="modal-close" (click)="showErrorModal = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>{{ 'MESSAGES.CATEGORY_ERROR' | translate }}</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showErrorModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+<!-- Modal d'ajout de sous-catégorie -->
+<div class="modal-backdrop" *ngIf="showAddSubCategoryModalFlag" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>{{ 'CATEGORIES.ADD_SUB' | translate }} - {{ currentCategory?.name }}</h2>
+      <button class="modal-close" (click)="closeAddSubCategoryModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="onSubmitSubCategory()">
+        <div class="form-group">
+          <label for="subCategoryName">{{ 'CATEGORIES.NAME' | translate }}</label>
+          <input type="text" id="subCategoryName" [(ngModel)]="newSubCategory.name" name="subName" required class="form-control">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeAddSubCategoryModal()">
+            {{ 'ACTIONS.CANCEL' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary"> 
+            {{ 'ACTIONS.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- ✅ Modal Succès (Sous-catégorie) -->
+<div class="modal-backdrop" *ngIf="showSubSuccessModal" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>✅ {{ 'CATEGORIES.ADD_SUB' | translate }}</h2>
+      <button class="modal-close" (click)="showSubSuccessModal = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>{{ 'MESSAGES.SUBCATEGORY_ADDED' | translate }}</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" (click)="showSubSuccessModal = false">OK</button>
+    </div>
+  </div>
+</div>
+<!-- ⚠️ Modal Confirmation Suppression -->
+<div class="modal-backdrop" *ngIf="showConfirmDeleteModal" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>⚠️ {{ 'ACTIONS.CONFIRM_DELETE' | translate }}</h2>
+      <button class="modal-close" (click)="closeConfirmModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>
+        {{ 'MESSAGES.CONFIRM_DELETE' | translate }}
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeConfirmModal()">
+        {{ 'ACTIONS.CANCEL' | translate }}
+      </button>
+      <button class="btn btn-danger" (click)="onConfirmDelete()">
+        {{ 'ACTIONS.DELETE' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ❌ Modal Erreur (Sous-catégorie) -->
+<div class="modal-backdrop" *ngIf="showSubErrorModal" @fadeInOut>
+  <div class="modal" @slideInOut>
+    <div class="modal-header">
+      <h2>⚠️ {{ 'CATEGORIES.ADD_SUB' | translate }}</h2>
+      <button class="modal-close" (click)="showSubErrorModal = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>{{ 'MESSAGES.SUBCATEGORY_ERROR' | translate }}</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showSubErrorModal = false">OK</button>
+    </div>
+  </div>
+</div>
+<!-- FlashSales Tab Content -->
+<div *ngIf="!isLoading() && activeTab() === 'Display'" @fadeInOut>
+  <div class="section-header">
+    <h1>{{ 'FLASHSALES.MANAGEMENT' | translate }}</h1>
+    <div class="actions">
+      <button class="btn btn-primary" (click)="openAddFlashSaleModal()">
+        <i class="fas fa-plus"></i> {{ 'FLASHSALES.ADD' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des FlashSales -->
+  <table class="flashsale-table">
+    <thead>
+      <tr>
+        <th>{{ 'FLASHSALES.NAME' | translate }}</th>
+        <th>{{ 'FLASHSALES.START_DATE' | translate }}</th>
+        <th>{{ 'FLASHSALES.END_DATE' | translate }}</th>
+        <th>{{ 'FLASHSALES.DISCOUNT' | translate }}</th>
+        <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let flash of flashsales()" [class.highlighted]="flash.isHighlighted">
+        <td>{{ flash.title }}</td> <!-- backend renvoie title -->
+        <td>{{ flash.startDate | date:'short' }}</td>
+        <td>{{ flash.endDate | date:'short' }}</td>
+        <td>{{ flash.discount }}</td>
+        <td>
+          <button class="btn btn-sm btn-success" (click)="openEditFlashSaleModal(flash)">
+            {{ 'ACTIONS.EDIT' | translate }}
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="confirmDeleteFlashSale(flash._id)">
+            {{ 'ACTIONS.DELETE' | translate }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal Add/Edit FlashSale -->
+  <div class="modal-backdrop" *ngIf="showFlashSaleModal" @fadeInOut>
+    <div class="modal" @slideInOut>
+      <div class="modal-header">
+        <h2>{{ isEditingFlashSale ? ('FLASHSALES.EDIT' | translate) : ('FLASHSALES.ADD' | translate) }}</h2>
+        <button class="modal-close" (click)="closeFlashSaleModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #flashSaleForm="ngForm" (ngSubmit)="onSubmitFlashSale()">
+          <div class="form-group">
+            <label for="flashName">{{ 'FLASHSALES.NAME' | translate }}</label>
+            <input type="text" id="flashName" name="name" [(ngModel)]="currentFlashSale.name" required class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="startDate">{{ 'FLASHSALES.START_DATE' | translate }}</label>
+            <input type="datetime-local" id="startDate" name="startDate" [(ngModel)]="currentFlashSale.startDate" required class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">{{ 'FLASHSALES.END_DATE' | translate }}</label>
+            <input type="datetime-local" id="endDate" name="endDate" [(ngModel)]="currentFlashSale.endDate" required class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="discount">{{ 'FLASHSALES.DISCOUNT' | translate }}</label>
+            <input type="number" id="discount" name="discount" [(ngModel)]="currentFlashSale.discount" min="0" max="100" required class="form-control">
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeFlashSaleModal()">
+              {{ 'ACTIONS.CANCEL' | translate }}
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="flashSaleForm.invalid">
+              {{ 'ACTIONS.SAVE' | translate }}
+            </button>
+          </div>
+          <div class="form-group">
+<div class="form-group">
+  <label>
+    <input type="checkbox" [(ngModel)]="currentFlashSale.isHighlighted" name="isHighlighted">
+    {{ 'FLASHSALES.HIGHLIGHTED' | translate }}
+  </label>
+</div>
+
+</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Succès FlashSale -->
+  <div class="modal-backdrop" *ngIf="showFlashSaleSuccess" @fadeInOut>
+    <div class="modal" @slideInOut>
+      <div class="modal-header">
+        <h2>✅ {{ isEditingFlashSale ? ('FLASHSALES.EDIT' | translate) : ('FLASHSALES.ADD' | translate) }}</h2>
+        <button class="modal-close" (click)="showFlashSaleSuccess = false">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'MESSAGES.FLASHSALE_SUCCESS' | translate }}</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="showFlashSaleSuccess = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Erreur FlashSale -->
+  <div class="modal-backdrop" *ngIf="showFlashSaleError" @fadeInOut>
+    <div class="modal" @slideInOut>
+      <div class="modal-header">
+        <h2>⚠️ {{ isEditingFlashSale ? ('FLASHSALES.EDIT' | translate) : ('FLASHSALES.ADD' | translate) }}</h2>
+        <button class="modal-close" (click)="showFlashSaleError = false">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'MESSAGES.FLASHSALE_ERROR' | translate }}</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="showFlashSaleError = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmation Suppression FlashSale -->
+  <div class="modal-backdrop" *ngIf="showFlashSaleConfirmDelete" @fadeInOut>
+    <div class="modal" @slideInOut>
+      <div class="modal-header">
+        <h2>⚠️ {{ 'ACTIONS.CONFIRM_DELETE' | translate }}</h2>
+        <button class="modal-close" (click)="closeFlashSaleConfirm()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{ 'MESSAGES.CONFIRM_DELETE_FLASHSALE' | translate }}</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="closeFlashSaleConfirm()">
+          {{ 'ACTIONS.CANCEL' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="deleteFlashSale()">
+          {{ 'ACTIONS.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Settings Tab Content -->
+      <div *ngIf="!isLoading() && activeTab() === 'settings'" @fadeInOut>
+        <div class="section-header">
+          <h1>{{ 'SETTINGS.TITLE' | translate }}</h1>
+        </div>
+        <!-- Settings content here -->
+      </div>
+
+      <!-- Vendors Tab Content -->
+      <div *ngIf="!isLoading() && activeTab() === 'vendors'" @fadeInOut>
+        <div class="section-header">
+          <h1>{{ 'VENDORS.MANAGEMENT' | translate }}</h1>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                [placeholder]="'VENDORS.SEARCH_PLACEHOLDER' | translate"
+                (input)="sellerSearchTerm.set($any($event.target).value)"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <table class="vendor-table">
+          <thead>
+            <tr>
+              <th>{{ 'VENDORS.NAME' | translate }}</th>
+              <th>{{ 'VENDORS.EMAIL' | translate }}</th>
+              <th>{{ 'VENDORS.PHONE' | translate }}</th>
+              <th>{{ 'VENDORS.STORE' | translate }}</th>
+              <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let seller of filteredSellers">
+              <td>{{ seller.nom }}</td>
+              <td>{{ seller.email }}</td>
+              <td>{{ seller.telephone }}</td>
+              <td>{{ seller.boutique?.businessName || '-' }}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="deleteSeller(seller._id)">
+                  {{ 'ACTIONS.DELETE' | translate }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

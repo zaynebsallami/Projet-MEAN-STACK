@@ -1,0 +1,174 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" 
+     [class.show]="isVisible" 
+     (click)="closeModal()"
+     *ngIf="isVisible">
+  
+  <!-- Modal Container -->
+  <div class="modal-container" 
+       (click)="$event.stopPropagation()"
+       [class.show]="isVisible">
+    
+    <!-- Modal Header -->
+    <div class="modal-header">
+  <h2>{{ 'PRODUCT_DETAILS.TITLE' | translate }}</h2>
+      <button class="close-btn" (click)="closeModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-content">
+      
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'PRODUCT_DETAILS.LOADING' | translate }}</p>
+      </div>
+
+      <!-- Error State with 404 handling -->
+      <div *ngIf="error" class="error-state">
+        <svg *ngIf="notFound" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <p>{{ error }}</p>
+        <button (click)="closeModal()">{{ 'PRODUCT_DETAILS.CLOSE' | translate }}</button>
+      </div>
+
+      <!-- Product Details -->
+      <div *ngIf="!isLoading && !error && product" class="product-details">
+        
+        <!-- Product Images Section -->
+        <div class="product-images">
+          <div class="main-image">
+            <img 
+              [src]="product.image" 
+              [alt]="product.name" 
+              (error)="handleImageError($event)"
+              class="product-image"
+            />
+          </div>
+        </div>
+
+        <!-- Product Info Section -->
+        <div class="product-info">
+
+          <div class="product-header">
+            <h1 class="product-name">{{ product.name }}</h1>
+          </div>
+
+                  <div class="product-meta">
+          <div *ngIf="product.price !== undefined && product.price !== null" class="product-price">
+            {{ product.price | currency:'TND':'symbol':'1.2-2' }}
+          </div>
+
+     <div class="product-category" *ngIf="product.category">
+  <span class="label">{{ 'PRODUCT_DETAILS.CATEGORY' | translate }}:</span>
+  <span class="value">{{ product.category.name | translate }}</span>
+  <span *ngIf="product.subcategory"> > {{ product.subcategory.name | translate }}</span>
+</div>
+
+
+               <!-- ✅ Seller Name Link -->
+<div class="product-seller" *ngIf="product.seller?.nom">
+  <span class="label">{{ 'PRODUCT_DETAILS.SOLD_BY' | translate }}:</span>
+  <a (click)="goToSeller(product.seller._id)" class="value seller-link">
+    {{ product.seller.nom }}
+  </a>
+</div>
+
+          
+          <div class="product-description" *ngIf="product.description">
+        <h3>{{ 'PRODUCT_DETAILS.DESCRIPTION' | translate }}</h3>
+              <p>{{ product.description }}</p>
+          </div>
+
+          <div class="product-specs" *ngIf="product.specifications?.length">
+        <h3>{{ 'PRODUCT_DETAILS.SPECIFICATIONS' | translate }}</h3>
+            <ul>
+              <li *ngFor="let spec of product.specifications">
+                <span class="spec-name">{{ spec.name }}:</span>
+                <span class="spec-value">{{ spec.value }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Product Actions -->
+          <div class="product-actions">
+            <div class="quantity-section">
+          <label for="quantity">{{ 'PRODUCT_DETAILS.QUANTITY' | translate }}:</label>
+              <div class="quantity-selector">
+                <button (click)="decreaseQuantity()" [disabled]="quantity <= 1" class="qty-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </button>
+                <input type="number" [(ngModel)]="quantity" min="1" class="qty-input" />
+                <button (click)="increaseQuantity()" class="qty-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button class="add-to-cart-btn" (click)="addToCart()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            {{ 'PRODUCT_DETAILS.ADD_TO_CART' | translate }}
+              </button>
+              <button class="wishlist-btn" (click)="addToWishlist()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      <div *ngIf="!isLoading && !error && relatedProducts.length" class="related-products">
+    <h2>{{ 'PRODUCT_DETAILS.RELATED_PRODUCTS' | translate }}</h2>
+        
+        <div class="related-products-grid">
+          <div class="related-product-card" *ngFor="let relatedProduct of relatedProducts" (click)="openRelatedProduct(relatedProduct)">
+            <div class="related-image">
+              <img 
+                [src]="relatedProduct.image" 
+                [alt]="relatedProduct.name" 
+                (error)="handleImageError($event)"
+                class="product-image"
+                loading="lazy"
+              />
+            </div>
+            <div class="related-info">
+              <h3 class="product-name">{{ relatedProduct.name }}</h3>
+              <div *ngIf="relatedProduct.price !== undefined && relatedProduct.price !== null" class="product-price">
+                {{ relatedProduct.price | currency:'TND':'symbol':'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Feedback Modal -->
+<div class="feedback-modal" [class.show]="feedbackMessage !== null">
+  <div class="feedback-content">
+    {{ feedbackMessage }}
+  </div>
+</div>
+</div>
+

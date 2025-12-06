@@ -1,0 +1,20 @@
+<footer class="footer">
+  <div class="footer-container">
+    <!-- ONE grid-footer wrapping all sections -->
+    <div class="grid-footer">
+      <div class="footer-section" *ngFor="let section of footerSections">
+        <h3 class="footer-title">{{ section.title | translate }}</h3>
+        <ul class="footer-links">
+          <li *ngFor="let link of section.links">
+            <a href="#" class="footer-link">{{ link | translate }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <p class="footer-text">© 2023 VendorHub. {{ 'ALL_RIGHTS_RESERVED' | translate }}</p>
+    </div>
+  </div>
+</footer>

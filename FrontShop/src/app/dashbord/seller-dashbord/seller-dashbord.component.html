@@ -1,0 +1,368 @@
+<div class="seller-container">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-store"></i>
+        <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.seller' | translate }}</span>
+      </div>
+      <button class="collapse-btn" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li [class.active]="activeTab === 'overview'">
+          <a (click)="setTab('overview')">
+            <i class="fas fa-chart-line"></i>
+            <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.DASHBOARD' | translate }}</span>
+          </a>
+        </li>
+        <li [class.active]="activeTab === 'products'">
+          <a (click)="setTab('products')">
+            <i class="fas fa-box"></i>
+            <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.PRODUCTS' | translate }}</span>
+          </a>
+        </li>
+        <li [class.active]="activeTab === 'orders'">
+          <a (click)="setTab('orders')">
+            <i class="fas fa-shopping-cart"></i>
+            <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.ORDERS' | translate }}</span>
+          </a>
+        </li>
+        <li [class.active]="activeTab === 'customers'" *ngIf="showCustomersTab">
+          <a (click)="setTab('customers')">
+            <i class="fas fa-users"></i>
+            <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.CUSTOMERS' | translate }}</span>
+          </a>
+        </li>
+      <li [class.active]="activeTab === 'profile'">
+          <a (click)="setTab('profile')">
+            <i class="fas fa-user-cog"></i>
+            <span *ngIf="!sidebarCollapsed">{{ 'SIDEBAR.PROFILE' | translate }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>{{ getPageTitle() }}</h1>
+        <nav class="breadcrumb">
+          <span>{{ 'SIDEBAR.DASHBOARD' | translate }}</span>
+          <i class="fas fa-chevron-right"></i>
+          <span>{{ getPageTitle() }}</span>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterProducts()" 
+                 placeholder="Search products...">
+        </div>
+      
+        
+       <div class="user-menu">
+  
+
+</div>
+
+
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="content">
+      <!-- Success/Error Messages -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Overview Tab -->
+      <div *ngIf="activeTab === 'overview'" class="tab-content" [@itemAnimation]>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div *ngFor="let stat of stats" class="stat-card" [@itemAnimation]>
+            <div class="stat-icon">{{ stat.icon }}</div>
+            <div class="stat-content">
+              <h3>{{ stat.title | translate }}</h3>
+              <p class="stat-value">
+                {{ stat.prefix }}{{ stat.value }}{{ stat.suffix }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h3>{{ 'chart.sales' | translate }}</h3>
+            <select [(ngModel)]="selectedYear" (change)="initChart()">
+              <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+          <div class="chart-container">
+            <canvas #salesChart></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div *ngIf="activeTab === 'products'" class="tab-content" [@itemAnimation]>
+        <div class="products-section">
+          <!-- Product Form -->
+          <div class="form-section">
+            <h3>{{ isEditing ? ('Edit Product' | translate) : ('Add New Product' | translate) }}</h3>
+            <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="product-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="name">{{ 'sellerDashboard.productManagement.name' | translate }} *</label>
+                  <input type="text" id="name" formControlName="name" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="price">{{ 'sellerDashboard.productManagement.price' | translate }} *</label>
+                  <input type="number" id="price" formControlName="price" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="stock">{{ 'sellerDashboard.productManagement.stock' | translate }}</label>
+                  <input type="number" id="stock" formControlName="stock">
+                </div>
+                
+                <div class="form-group">
+                  <label for="category">{{ 'sellerDashboard.productManagement.category' | translate }} *</label>
+                  <select id="category" formControlName="category" 
+                          (change)="currentProduct.category = $any($event.target).value; onCategoryChange()" required>
+                    <option value="">{{ 'sellerDashboard.productManagement.selectCategory' | translate }}</option>
+                    <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                  </select>
+                </div>
+                
+                <div class="form-group" *ngIf="filteredSubcategories.length > 0">
+                  <label for="subcategory">{{ 'sellerDashboard.productManagement.subcategory' | translate }}</label>
+                  <select id="subcategory" formControlName="subcategory" 
+                          (change)="currentProduct.subcategory = $any($event.target).value; onSubcategoryChange($any($event.target).value)">
+                    <option value="">{{ 'sellerDashboard.productManagement.selectSubcategory' | translate }}</option>
+                    <option *ngFor="let sub of filteredSubcategories" [value]="sub._id">{{ sub.name }}</option>
+                  </select>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label for="description">{{ 'sellerDashboard.productManagement.description' | translate }}</label>
+                  <textarea id="description" formControlName="description" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label for="image">{{ 'sellerDashboard.productManagement.image' | translate }}</label>
+                  <input type="file" id="image" (change)="onFileChange($event)" accept="image/*">
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="!productForm.valid">
+                  {{ isEditing ? ('sellerDashboard.productManagement.update' | translate) : ('sellerDashboard.productManagement.add' | translate) }}
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="resetForm()">
+                  {{ 'sellerDashboard.productManagement.cancel' | translate }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Products List -->
+          <div class="products-list">
+            <div class="list-header">
+              <h3>{{ 'PRODUCTS.MANAGEMENT' | translate }} ({{ filteredProducts.length }})</h3>
+              <div class="list-controls">
+                <select [(ngModel)]="sortOption" (change)="filterProducts()">
+                  <option value="name">{{ 'sellerDashboard.productActions.sort.name' | translate }}</option>
+                  <option value="price">{{ 'sellerDashboard.productActions.sort.price' | translate }}</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="products-grid">
+              <div *ngFor="let product of filteredProducts" class="product-card" [@itemAnimation]>
+                <div class="product-image">
+                <img 
+  [src]="getProductImageUrl(product.image)" 
+  [alt]="product.name" 
+  class="product-image"
+  loading="lazy"
+  (error)="onImageError($event, product)"
+/>
+
+                </div>
+                <div class="product-info">
+                  <h4>{{ product.name }}</h4>
+                  <p class="product-price">{{ product.price }} DT</p>
+                  <p class="product-stock">Stock: {{ product.stock }}</p>
+                  <div class="product-actions">
+                    <button class="btn btn-sm btn-primary" (click)="editProduct(product)">
+                      <i class="fas fa-edit"></i> {{ 'sellerDashboard.productsTable.edit' | translate }}
+                    </button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteProduct(product._id || product.id)">
+                      <i class="fas fa-trash"></i> {{ 'sellerDashboard.productsTable.delete' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     <!-- Orders Tab -->
+<div *ngIf="activeTab === 'orders'" class="tab-content" [@itemAnimation]>
+  <div class="orders-section">
+    <h3>{{ 'sellerDashboard.orders.title' | translate }}</h3>
+
+    <div *ngIf="loading" class="loading">{{ 'COMMON.LOADING' | translate }}</div>
+    <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+
+    <div class="orders-table" *ngIf="!loading && !error">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'sellerDashboard.orders.orderId' | translate }}</th>
+            <th>{{ 'sellerDashboard.orders.customer' | translate }}</th>
+            <th>{{ 'PRODUCTS.MANAGEMENT' | translate }}</th>
+            <th>{{ 'TOTAL' | translate }}</th>
+            <th>{{ 'STATUS' | translate }}</th>
+            <th>{{ 'DATE' | translate }}</th>
+            <th>{{ 'ACTIONS.TITLE' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Affichage des commandes -->
+          <tr *ngFor="let order of orders" [@itemAnimation]>
+            <td>{{ order._id }}</td> <!-- ID MongoDB -->
+            <td>
+              <div class="customer-info">
+                <small>{{ order.userId?.email || '' }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="products-list">
+                <div *ngFor="let item of order.products" class="product-item">
+                  {{ item.productId._id }} - {{ item.productId.name }} (x{{ item.quantity }})
+                </div>
+              </div>
+            </td>
+            <td class="total-amount">{{ order.totalAmount }} DT</td>
+            <td>
+              <span class="status-badge" [class]="'status-' + order.status">
+                {{ getStatusText(order.status) }}
+              </span>
+            </td>
+            <td>{{ order.createdAt | date:'short' }}</td>
+            <td>
+              <select (change)="onOrderStatusChange(order._id, $event)" 
+                      [value]="order.status" class="status-select">
+                <option value="pending">{{ 'sellerDashboard.orders.status.pending' | translate }}</option>
+                <option value="shipped">{{ 'sellerDashboard.orders.status.shipped' | translate }}</option>
+                <option value="delivered">{{ 'sellerDashboard.orders.status.delivered' | translate }}</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+      <!-- Customers Tab -->
+      <div *ngIf="activeTab === 'customers' && showCustomersTab" class="tab-content" [@itemAnimation]>
+        <div class="customers-section">
+          <h3>{{ 'USERS.MANAGEMENT' | translate }}</h3>
+          <!-- Added empty state message when no customers found -->
+          <div *ngIf="customers.length === 0" class="empty-state">
+            <i class="fas fa-users fa-3x"></i>
+            <h4>{{ 'customers.noCustomers' | translate }}</h4>
+            <p>{{ 'customers.emptyMessage' | translate }}</p>
+          </div>
+          <div class="customers-grid" *ngIf="customers.length > 0">
+            <div *ngFor="let customer of customers" class="customer-card" [@itemAnimation]>
+              <div class="customer-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="customer-info">
+                <h4>{{ customer.name }}</h4>
+                <p>{{ customer.email }}</p>
+                <small>Orders: {{ customer.orderCount || 0 }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+ <!-- Profile Tab -->
+<div *ngIf="activeTab === 'profile'" class="tab-content" [@itemAnimation]>
+  <div class="profile-settings">
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="photo-section">
+        <img
+  *ngIf="storePhotoPreview; else currentPhoto"
+  [src]="storePhotoPreview"
+  alt="Boutique photo"
+/>
+
+<ng-template #currentPhoto>
+  <img [src]="getProfileImageUrl(sellerInfo?.boutique?.storePhoto)" alt="Current boutique photo" />
+</ng-template>
+
+<input type="file" (change)="onStorePhotoChange($event)" />
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.NAME' | translate }}</label>
+        <input type="text" formControlName="name">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.EMAIL' | translate }}</label>
+        <input type="email" formControlName="email">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.PASSWORD' | translate }}</label>
+        <input type="password" formControlName="password" placeholder="Leave blank to keep current">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'PROFILE.CONFIRM_PASSWORD' | translate }}</label>
+        <input type="password" formControlName="confirmPassword">
+      </div>
+ 
+  <div class="form-group">
+    <label>Description</label>
+    <textarea formControlName="description"></textarea>
+  </div>
+
+      <button type="submit" class="btn btn-primary">
+        {{ 'PROFILE.SAVE_CHANGES' | translate }}
+      </button>
+    </form>
+  </div>
+</div>
+<!-- Success Message -->
+<div *ngIf="profileSuccessMessage" class="alert alert-success mt-3">
+  {{ profileSuccessMessage }}
+</div>
+
+
+    </div>
+    
+  </main>
+</div>

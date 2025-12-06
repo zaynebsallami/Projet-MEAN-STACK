@@ -1,0 +1,70 @@
+// Variables
+$text-color: var(--text-color, #64748b);
+$card-bg: var(--card-bg, white);
+
+// Container
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// Canvas
+canvas {
+  flex: 1;
+}
+
+// Legend
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+    
+    span {
+      font-size: 0.875rem;
+      color: $text-color;
+    }
+  }
+}
+
+// Empty state
+.chart-empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: $card-bg;
+  
+  i {
+    font-size: 3rem;
+    color: $text-color;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: $text-color;
+    margin: 0;
+  }
+}

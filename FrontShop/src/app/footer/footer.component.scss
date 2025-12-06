@@ -1,0 +1,94 @@
+.footer {
+  background-color: var(--ct);
+  color: var(--text-color-light);
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  a {
+    color: var(--cosmic);
+    text-decoration: none;
+    transition: color 0.3s ease;
+
+    &:hover,
+    &:focus {
+      color: var(--primary-gradient);
+      text-decoration: underline;
+    }
+  }
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-footer {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: nowrap;
+  }
+
+  .footer-section {
+    flex: 0 0 auto;
+    min-width: 150px;
+
+    .footer-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--cosmic);
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 0.5rem;
+
+        .footer-link {
+          display: inline-block;
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+  .footer {
+    background-color: var(--dark-space);
+    color: var(--text-color-dark);
+
+    a {
+      color: var(--nebula-color);
+
+      &:hover,
+      &:focus {
+        color: var(--primary-gradient);
+      }
+    }
+
+    .footer-title {
+      color: var(--cosmic-ring-color);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}

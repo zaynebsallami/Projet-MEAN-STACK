@@ -1,0 +1,225 @@
+<div class="cart-container">
+  <div class="cart-wrapper">
+    <div class="cart-header">
+      <div class="header-content">
+        <h1>{{ 'cart.title' | translate }}</h1>
+        <p class="item-count">
+          {{ itemCount }} 
+          {{ itemCount === 1 ? ('cart.item' | translate) : ('cart.items' | translate) }} 
+          {{ 'cart.inYourCart' | translate }}
+        </p>
+      </div>
+      <button 
+        *ngIf="cartItems.length > 0" 
+        (click)="clearCart()" 
+        class="clear-btn"
+        [attr.aria-label]="'cart.clearCart' | translate"
+      >
+        <span>🗑️</span> {{ 'cart.clearCart' | translate }}
+      </button>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="empty-cart">
+      <div class="empty-icon">🛍️</div>
+      <h2>{{ 'cart.emptyTitle' | translate }}</h2>
+      <p>{{ 'cart.emptyDescription' | translate }}</p>
+      <a routerLink="/category" class="btn-primary">
+        <span>←</span> {{ 'cart.continueShopping' | translate }}
+      </a>
+    </div>
+
+    <div *ngIf="cartItems.length > 0" class="cart-content">
+      <div class="cart-items">
+        <h2 class="section-title">{{ 'cart.yourItems' | translate }}</h2>
+        
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <div class="item-content">
+            <div class="item-image">
+<img 
+  [src]="getItemImageUrl(item.image)" 
+  [alt]="item.name" 
+  class="product-image"
+  (error)="item.image = 'http://localhost:3000/uploads/default-product.png'" />
+            </div>
+            
+            <div class="item-details">
+              <h3>{{item.name}}</h3>
+              <p class="item-category">{{getItemCategory(item)}}</p>
+              
+              <div 
+                class="item-status" 
+                [class.in-stock]="isItemInStock(item)" 
+                [class.out-of-stock]="!isItemInStock(item)"
+              >
+                {{ isItemInStock(item) ? ('cart.inStock' | translate) : ('cart.outOfStock' | translate) }}
+              </div>
+              
+              <div class="quantity-control">
+                <button 
+                  (click)="updateQuantity(item._id, item.quantity - 1)" 
+                  [disabled]="item.quantity <= 1"
+                  [attr.aria-label]="'cart.decreaseQuantity' | translate"
+                >
+                  −
+                </button>
+                <div class="quantity">{{item.quantity}}</div>
+                <button 
+                  (click)="updateQuantity(item._id, item.quantity + 1)"
+                  [attr.aria-label]="'cart.increaseQuantity' | translate"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            
+            <div class="item-actions">
+              <div class="item-price">
+                <p class="current-price">{{item.price * item.quantity | currency:'TND':'symbol':'1.2-2'}}</p>
+                <p class="unit-price">{{item.price | currency:'TND':'symbol':'1.2-2'}} {{ 'cart.each' | translate }}</p>
+              </div>
+              
+              <button 
+                (click)="removeItem(item._id)" 
+                class="remove-btn"
+                [attr.aria-label]="'cart.removeItem' | translate"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommended-section">
+          <h2 class="section-title">{{ 'cart.recommended' | translate }}</h2>
+
+          <div *ngIf="isLoadingRecommended" class="loading-grid">
+            <div *ngFor="let i of [1,2,3,4]" class="loading-card">
+              <div class="loading-image"></div>
+              <div class="loading-content">
+                <div class="loading-line"></div>
+                <div class="loading-line"></div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoadingRecommended && recommendedProducts.length === 0" class="no-recommendations">
+            <p>{{ 'cart.noRecommendations' | translate }}</p>
+          </div>
+
+          <div *ngIf="!isLoadingRecommended && recommendedProducts.length > 0" class="products-grid">
+            <div *ngFor="let product of recommendedProducts; trackBy: trackByProductId" class="recommended-product-card">
+<img [src]="getRecommendedProductImageUrl(product.image)"
+     [alt]="product.name"
+     class="recommended-image"
+     (error)="handleImageError($event)" />
+              <h3 class="product-name">{{ product.name }}</h3>
+              <p class="product-price">{{ product.price | currency:'TND':'symbol':'1.2-2' }}</p>
+              <button class="add-to-cart-btn" (click)="addToCart(product)">{{ 'cart.addToCart' | translate }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h2>{{ 'cart.orderSummary' | translate }}</h2>
+        
+        <div class="coupon-section">
+          <div class="coupon-input">
+            <input 
+              [(ngModel)]="couponCode" 
+              [placeholder]="'cart.enterPromoCode' | translate"
+              (keyup.enter)="applyCoupon()"
+              [attr.aria-label]="'cart.promoCodeInput' | translate"
+            />
+            <button (click)="applyCoupon()" [attr.aria-label]="'cart.applyPromoCode' | translate">{{ 'cart.apply' | translate }}</button>
+          </div>
+          
+          <div *ngIf="appliedCoupon" class="applied-coupon">
+            <div class="coupon-info">
+              <span>🏷️</span> {{appliedCoupon}} {{ 'cart.applied' | translate }}
+            </div>
+            <button (click)="removeCoupon()" class="remove-coupon" [attr.aria-label]="'cart.removeCoupon' | translate">✕</button>
+          </div>
+        </div>
+        
+        <div class="available-coupons" *ngIf="!appliedCoupon">
+          <h3>{{ 'cart.availablePromoCodes' | translate }}</h3>
+          <div class="coupon-list">
+            <div *ngFor="let coupon of validCoupons" class="coupon-item">
+              <div class="coupon-info">
+                <strong>{{coupon.code}}</strong>
+                <span>{{coupon.description}}</span>
+              </div>
+              <button (click)="applyCouponCode(coupon.code)">{{ 'cart.use' | translate }}</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="price-breakdown">
+          <div class="price-row">
+            <span>{{ 'cart.subtotal' | translate }}</span>
+            <span>{{subtotal | currency:'TND':'symbol':'1.2-2'}}</span>
+          </div>
+          <div class="price-row">
+            <span>{{ 'cart.shipping' | translate }}</span>
+            <span>{{shipping === 0 ? ('cart.free' | translate) : (shipping | currency:'TND':'symbol':'1.2-2')}}</span>
+          </div>
+      
+          <div *ngIf="discount > 0" class="price-row discount">
+            <span>{{ 'cart.discount' | translate }}</span>
+            <span>-{{discount | currency:'TND':'symbol':'1.2-2'}}</span>
+          </div>
+          
+          <div class="separator"></div>
+          
+          <div class="total-row">
+            <span>{{ 'cart.total' | translate }}</span>
+            <span>{{total | currency:'TND':'symbol':'1.2-2'}}</span>
+          </div>
+
+          <div *ngIf="savedAmount > 0" class="savings">
+            {{ 'cart.youSave' | translate }} {{savedAmount | currency:'TND':'symbol':'1.2-2'}}
+          </div>
+
+          <div *ngIf="subtotal < freeShippingThreshold && !appliedCoupon" class="shipping-notice">
+            <p>{{ 'cart.addMoreForFreeShipping' | translate: {amount: (freeShippingThreshold - subtotal) | currency:'TND':'symbol':'1.2-2'} }}</p>
+          </div>
+        </div>
+        
+        <div class="shipping-info">
+          <div *ngFor="let info of shippingInfo" class="info-item">
+            <div class="info-icon" [ngClass]="info.class">{{info.icon}}</div>
+            <div class="info-content">
+              <h4>{{info.title}}</h4>
+              <p>{{info.description}}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="checkout-actions">
+          <button class="checkout-btn" (click)="openCheckout()" [attr.aria-label]="'cart.proceedToCheckout' | translate">
+            🛒 {{ 'cart.proceedToCheckout' | translate }}
+          </button>
+
+          <button class="continue-shopping-btn" (click)="continueShopping()" [attr.aria-label]="'cart.continueShopping' | translate">
+            ← {{ 'cart.continueShopping' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showCheckout" class="checkout-overlay" @fadeInOut>
+  <div class="checkout-modal">
+    <button class="close-checkout" (click)="closeCheckout()" [attr.aria-label]="'cart.closeCheckout' | translate">
+      <svg class="close-icon" viewBox="0 0 24 24" role="img" aria-hidden="true">
+        <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+    
+    <div class="checkout-content">
+      <app-checkout (close)="closeCheckout()"></app-checkout>
+    </div>
+  </div>
+</div>

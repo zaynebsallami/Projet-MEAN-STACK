@@ -1,0 +1,52 @@
+<div class="wishlist-container">
+  <div class="wishlist-header">
+    <h1 class="wishlist-title cosmic-text">{{ 'WISHLIST.TITLE' | translate }}</h1>
+    <div class="wishlist-count nebula-bg" *ngIf="wishlist.length > 0">
+      {{ wishlist.length }} {{ 'WISHLIST.ITEMS' | translate }}
+    </div>
+  </div>
+
+  <div class="wishlist-status">
+    <div *ngIf="loading" class="loading-state starfield-bg">
+      <div class="cosmic-spinner"></div>
+      {{ 'LOADING' | translate }}
+    </div>
+    
+    <div *ngIf="error" class="error-state deep-bg">
+      <i class="fas fa-exclamation-circle cosmic-text"></i>
+      {{ error }}
+    </div>
+    
+    <div *ngIf="!loading && wishlist.length === 0" class="empty-state cosmic-ring-bg">
+      <i class="fas fa-heart cosmic-text"></i>
+      <p>{{ 'WISHLIST.EMPTY' | translate }}</p>
+      <a routerLink="/category" class="browse-btn primary-gradient">
+        {{ 'WISHLIST.BROWSE_PRODUCTS' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <ul *ngIf="wishlist.length > 0" class="wishlist-grid">
+    <li *ngFor="let item of wishlist" class="wishlist-item">
+      <div class="item-image cosmic-ring-border">
+    <img [src]="getWishlistImageUrl(item.image ?? null)" 
+     [alt]="item.name" 
+     class="product-img">
+
+        <button class="remove-btn nebula-bg" (click)="removeItem(item._id)">
+          <i class="fas fa-trash cosmic-text"></i>
+        </button>
+      </div>
+      
+      <div class="item-details">
+        <h3 class="item-name cosmic-text">{{ item.name }}</h3>
+        <div class="item-meta">
+          <span class="item-price cosmic-text">{{ item.price | currency:'TND':'symbol':'1.2-2' }}</span>
+          <button class="cart-btn secondary-gradient" (click)="moveToCart(item)">
+            <i class="fas fa-cart-plus"></i> {{ 'ADD_TO_CART' | translate }}
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>

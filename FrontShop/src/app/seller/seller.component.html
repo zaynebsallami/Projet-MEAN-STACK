@@ -1,0 +1,63 @@
+<div class="sellers-page">
+  <div class="sellers-header">
+    <h1>{{ 'SELLERS_DETAILS.TITLE' | translate }}</h1>
+    <p>{{ 'DISCOVER_UNIQUE_PRODUCTS' | translate }}</p>
+
+    <div class="filters">
+      <input
+        class="search-input"
+        type="text"
+        [placeholder]="'SELLERS_DETAILS.SEARCH_PLACEHOLDER' | translate"
+        [value]="searchTerm"
+        (input)="onSearchChange($event)"
+      />
+   <select [(ngModel)]="categoryFilter" name="category" (change)="onCategoryChange()" required>
+  <option value="">{{ 'SELLERS_DETAILS.ALL_CATEGORIES' | translate }}</option>
+<option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
+</select>
+
+<select *ngIf="filteredSubcategories.length" [(ngModel)]="subcategoryFilter" name="subcategory" (change)="onSubcategoryChange($event)">
+  <option value="">Toutes les sous-catégories</option>
+  <option *ngFor="let sub of filteredSubcategories" [value]="sub._id">{{ sub.name }}</option>
+</select>
+      
+    </div>
+  </div>
+
+  <div class="sellers-grid">
+    <div
+      *ngFor="let seller of filteredSellers"
+      class="seller-card"
+      [@listAnimation]>
+
+      <img
+        class="seller-avatar"
+        [src]="'http://localhost:3000/' + seller.avatar"
+        [alt]="seller.name"
+      />
+
+      <div class="seller-info">
+        <h2>{{ seller.name }}</h2>
+<p class="category-tag">
+  {{ getCategoryNameById(seller.categoryId) }}
+  <span *ngIf="seller.subcategoryId">
+    - {{ getSubcategoryNameById(seller.subcategoryId) }}
+  </span>
+</p>
+        <div class="stats">
+          <span>⭐ {{ seller.rating.toFixed(1) }}</span>
+          <span>{{ seller.products }} {{ 'SELLERS_DETAILS.PRODUCTS' | translate }}</span>
+        </div>
+        <a
+          [routerLink]="['/boutique-seller', seller._id]"
+          class="visit-boutique">
+          {{ 'SELLERS_DETAILS.VISIT_BOUTIQUE' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="filteredSellers.length === 0" class="no-results">
+    {{ 'SELLERS_DETAILS.NO_RESULTS' | translate }}
+  </p>
+</div>

@@ -1,0 +1,152 @@
+.sellers-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text-color-light);
+  background-color: var(--background-light);
+
+  body.dark-mode & {
+    color: var(--text-color-dark);
+    background-color: var(--dark-space);
+  }
+
+  .sellers-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--cosmic);
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: var(--deep);
+    }
+
+    .filters {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+
+      input,
+      select {
+        padding: 0.75rem 1rem;
+        border-radius: 2rem;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        background: white;
+        min-width: 250px;
+
+        body.dark-mode & {
+          background-color: #1a1a1a;
+          color: white;
+          border-color: #444;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: var(--cosmic);
+        }
+      }
+    }
+  }
+
+  .sellers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+
+    .seller-card {
+      background: var(--ct);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+
+      body.dark-mode & {
+        background-color: var(--starfield-color);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.08);
+      }
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--cosmic-ring-color);
+      }
+
+      .seller-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 2px solid var(--cosmic);
+      }
+
+      .seller-info {
+        h2 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: var(--cosmic);
+        }
+
+        .category-tag {
+          background: var(--primary-gradient);
+          padding: 0.3rem 0.75rem;
+          border-radius: 1rem;
+          color: white;
+          font-size: 0.85rem;
+          margin-bottom: 0.75rem;
+          display: inline-block;
+        }
+
+        .stats {
+          display: flex;
+          gap: 1rem;
+          font-size: 0.95rem;
+          color: var(--deep);
+          margin-bottom: 1rem;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+          }
+        }
+
+        .visit-boutique {
+          display: inline-block;
+          padding: 0.6rem 1.2rem;
+          border-radius: 2rem;
+          background: var(--secondary-gradient);
+          color: white;
+          font-weight: 600;
+          text-decoration: none;
+          transition: background 0.3s ease, box-shadow 0.3s ease;
+
+          &:hover {
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 10px var(--cosmic);
+          }
+        }
+      }
+    }
+  }
+
+  .no-results {
+    margin-top: 3rem;
+    text-align: center;
+    font-weight: 500;
+    color: var(--deep);
+  }
+}

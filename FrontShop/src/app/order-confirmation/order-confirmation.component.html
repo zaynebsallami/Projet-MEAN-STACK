@@ -1,0 +1,14 @@
+<div class="order-confirmation" *ngIf="!loading && isOrderSaved">
+  <h1>🎉 Thank You!</h1>
+  <p>Your order has been placed successfully.</p>
+  <p>You will receive your package and pay upon delivery.</p>
+<a [routerLink]="['/category', '']" class="btn-primary">← Continue Shopping</a>
+</div>
+
+<div *ngIf="loading" class="loading-spinner">
+  Processing your order...
+</div>
+
+<div *ngIf="!loading && !isOrderSaved" class="error">
+  ❌ Failed to save order. Please contact support.
+</div>

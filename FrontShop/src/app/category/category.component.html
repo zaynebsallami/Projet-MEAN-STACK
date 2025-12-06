@@ -1,0 +1,127 @@
+<div class="category-container">
+  <!-- Sidebar -->
+  <div class="filter-bar">
+    <div class="categories-section">
+      <h3 class="filter-title">{{ 'category.categoriesTitle' | translate }}</h3>
+      <div class="categories-list">
+        <div
+          class="filter-chip"
+          *ngFor="let category of categories"
+          [class.active]="category._id === selectedCategory?._id"
+          (click)="selectCategory(category)"
+        >
+          <div class="category-name">
+            {{ category.name | translate }} ({{ category.productCount || 0 }})
+          </div>
+          
+          <!-- Subcategories nested under parent category -->
+          <div 
+            class="subcategories-list" 
+            *ngIf="category._id === selectedCategory?._id && category.subcategories?.length"
+          >
+            <div
+              class="filter-chip subcategory"
+              *ngFor="let sub of category.subcategories"
+              [class.active]="sub._id === selectedSubcategory?._id"
+              (click)="selectSubcategory($event, sub)"
+            >
+              {{ sub.name | translate }} ({{ sub.productCount || 0 }})
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="product-content">
+    <div class="product-header">
+      <h2>
+        {{ (selectedSubcategory?.name | translate) || (selectedCategory?.name | translate) || ('ALL_PRODUCTS' | translate) }}
+      </h2>
+
+      <div class="product-controls">
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            [placeholder]="'category.searchPlaceholder' | translate" 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearch()" 
+          />
+        </div>
+        <div class="sort-box">
+          <select [(ngModel)]="sortOption" (change)="onSortChange()">
+            <option value="">{{ 'category.sortBy' | translate }}</option>
+            <option value="price-asc">{{ 'category.sort.priceAsc' | translate }}</option>
+            <option value="price-desc">{{ 'category.sort.priceDesc' | translate }}</option>
+            <option value="name-asc">{{ 'category.sort.nameAsc' | translate }}</option>
+            <option value="name-desc">{{ 'category.sort.nameDesc' | translate }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading and Error States -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'category.loading' | translate }}</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+      <p>{{ 'category.errorLoadingProducts' | translate }}: {{ error }}</p>
+      <button (click)="reload()">{{ 'category.retry' | translate }}</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !error && filteredProducts?.length === 0" class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p>{{ 'category.noProducts' | translate }}</p>
+      <button (click)="resetFilters()">{{ 'category.reset' | translate }}</button>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid" *ngIf="!isLoading && !error && filteredProducts?.length">
+      <div class="product-card" *ngFor="let product of filteredProducts" (click)="viewProductDetails(product)">
+        <div class="product-image-container">
+          <img 
+            [src]="getProductImageUrl(product.image)" 
+            [alt]="product.name" 
+            (error)="handleImageError($event)"
+            class="product-image"
+            loading="lazy"
+          />
+          <button class="add-to-cart-btn" (click)="addToCart($event, product); $event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            {{ 'category.addToCart' | translate }}
+          </button>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <div *ngIf="product.price !== undefined && product.price !== null" class="product-price">
+            {{ product.price | currency:'TND':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details Modal at the end of the file -->
+  <app-product-details
+    [productId]="selectedProductId"
+    [isVisible]="isModalVisible"
+    (closeModalEvent)="closeProductModal()"
+    (productChanged)="onProductChanged($event)">
+  </app-product-details>
+</div>

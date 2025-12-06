@@ -1,0 +1,690 @@
+<main class="client-profile" role="main" [attr.aria-labelledby]="'profile-title'" *ngIf="user">
+  
+  <!-- Profile Header with Background -->
+  <header class="client-profile__header" [style.background]="'linear-gradient(135deg, ' + headerGradient.from + ' 0%, ' + headerGradient.to + ' 100%)'">
+    <div class="client-profile__header-overlay"></div>
+    <div class="client-profile__avatar-section">
+      <div class="client-profile__avatar-container">
+      
+        <button 
+          class="client-profile__avatar-edit" 
+          (click)="openAvatarUpload()" 
+          [attr.aria-label]="'CHANGE_PROFILE_PICTURE' | translate"
+        >
+          <i class="fas fa-camera"></i>
+        </button>
+        <div class="client-profile__avatar-status client-profile__avatar-status--online"></div>
+      </div>
+      
+      <div class="client-profile__user-info">
+        <h1 id="profile-title" class="client-profile__name">
+          {{ user.nom }}
+          <button 
+            class="client-profile__edit-btn" 
+            (click)="editProfile()" 
+            [attr.aria-label]="'EDIT_PROFILE' | translate"
+          >
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+        </h1>
+        <p class="client-profile__email" [attr.aria-label]="'EMAIL_ADDRESS' | translate">
+          <i class="fas fa-envelope client-profile__icon" aria-hidden="true"></i>
+          {{ user.email }}
+          <span class="client-profile__verified-badge" *ngIf="user?.emailVerified">
+            <i class="fas fa-check-circle"></i> {{ 'VERIFIED' | translate }}
+          </span>
+        </p>
+        <div class="client-profile__stats">
+          <div class="client-profile__stat-item">
+            <i class="fas fa-shopping-bag"></i>
+<span>{{ user.nombreCommandes !== undefined ? user.nombreCommandes : 'loading...' }} {{ 'orders.title' | translate }}</span>
+          </div>
+          <div class="client-profile__stat-item">
+            <i class="fas fa-heart"></i>
+            <span>{{ user.wishlistCount || 0 }} {{ 'WISHLISTED' | translate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="client-profile__tabs" [attr.aria-label]="'PROFILE_SECTIONS' | translate">
+    <button class="client-profile__tab" 
+            [class.client-profile__tab--active]="activeTab === 'profile'"
+            (click)="setActiveTab('profile')">
+      <i class="fas fa-user"></i> {{ 'PROFILE' | translate }}
+    </button>
+    <button class="client-profile__tab" 
+            [class.client-profile__tab--active]="activeTab === 'orders'"
+            (click)="setActiveTab('orders')">
+      <i class="fas fa-shopping-bag"></i> {{ 'orders.title' | translate }}
+    </button>
+    <button class="client-profile__tab" 
+            [class.client-profile__tab--active]="activeTab === 'wishlist'"
+            (click)="setActiveTab('wishlist')">
+      <i class="fas fa-heart"></i> {{ 'WISHLIST.TITLE' | translate }}
+    </button>
+    <button class="client-profile__tab" 
+            [class.client-profile__tab--active]="activeTab === 'settings'"
+            (click)="setActiveTab('settings')">
+      <i class="fas fa-cog"></i> {{ 'settings.title' | translate }}
+    </button>
+  </nav>
+
+  <!-- Profile Content -->
+  <div class="client-profile__content" *ngIf="activeTab === 'profile'">
+    <!-- Personal Information Section -->
+    <section class="client-profile__section" [attr.aria-labelledby]="'personal-info-title'">
+      <h2 id="personal-info-title" class="client-profile__section-title">
+        <i class="fas fa-id-card client-profile__section-icon" aria-hidden="true"></i>
+        {{ 'PERSONAL_INFORMATION' | translate }}
+      </h2>
+      
+      <div class="client-profile__info-grid">
+        <div class="client-profile__info-item">
+          <div class="client-profile__info-content">
+            <dt class="client-profile__info-label">
+              <i class="fas fa-phone client-profile__info-icon" aria-hidden="true"></i>
+              {{ 'PHONE_NUMBER' | translate }}
+            </dt>
+            <dd class="client-profile__info-value">
+              {{ user.telephone || ('NOT_PROVIDED' | translate) }}
+              <button class="client-profile__edit-field" (click)="openFieldEditModal('telephone')" [attr.aria-label]="'EDIT_FIELD_PHONE' | translate">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </dd>
+          </div>
+        </div>
+        
+        <div class="client-profile__info-item">
+          <div class="client-profile__info-content">
+            <dt class="client-profile__info-label">
+              <i class="fas fa-map-marker-alt client-profile__info-icon" aria-hidden="true"></i>
+              {{ 'ADDRESS' | translate }}
+            </dt>
+            <dd class="client-profile__info-value">
+              {{ user.adresse || ('NOT_PROVIDED' | translate) }}
+              <button class="client-profile__edit-field" (click)="openFieldEditModal('adresse')" [attr.aria-label]="'EDIT_FIELD_ADDRESS' | translate">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </dd>
+          </div>
+        </div>
+        
+        <div class="client-profile__info-item">
+          <div class="client-profile__info-content">
+            <dt class="client-profile__info-label">
+              <i class="fas fa-birthday-cake client-profile__info-icon" aria-hidden="true"></i>
+                      {{ 'BIRTH_DATE' | translate: { 
+              day: user.dateNaissance?.getDate(), 
+              month: getTranslatedMonth(user.dateNaissance!), 
+              year: user.dateNaissance?.getFullYear() 
+            } }}
+            </dt>
+            <dd class="client-profile__info-value">
+              {{ user.dateNaissance ? (user.dateNaissance | date:'mediumDate') : ('NOT_AVAILABLE' | translate) }}
+              <button class="client-profile__edit-field" (click)="openFieldEditModal('dateNaissance')" [attr.aria-label]="'EDIT_FIELD_BIRTHDATE' | translate">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </dd>
+          </div>
+        </div>
+        
+        
+        
+        <div class="client-profile__info-item">
+          <div class="client-profile__info-content">
+            <dt class="client-profile__info-label">
+              <i class="fas fa-id-card client-profile__info-icon" aria-hidden="true"></i>
+              {{ 'USER_ID' | translate }}
+            </dt>
+            <dd class="client-profile__info-value">
+<span class="client-profile__user-id">{{ user._id ? user._id : '-' }}</span>
+              <button class="client-profile__copy-btn" (click)="copyToClipboard(user._id)" [attr.title]="'COPY_TO_CLIPBOARD' | translate">
+                <i class="fas fa-copy"></i>
+              </button>
+            </dd>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Orders Content -->
+  <div class="client-profile__content" *ngIf="activeTab === 'orders'">
+    <section class="client-profile__section" [attr.aria-labelledby]="'orders-title'">
+      <h2 id="orders-title" class="client-profile__section-title">
+        <i class="fas fa-shopping-bag client-profile__section-icon" aria-hidden="true"></i>
+        {{ 'ORDER_HISTORY' | translate }}
+      </h2>
+      
+      <div class="client-profile__order-list">
+        <div class="client-profile__order-item" *ngFor="let order of recentOrders">
+          <div class="client-profile__order-header">
+            <div class="client-profile__order-id">{{ 'ORDER_NUMBER' | translate }} #{{ order._id }}</div>
+            <div class="client-profile__order-date">{{ getFormattedDate(order.createdAt) }}</div>
+            <div class="client-profile__order-status" [class]="'client-profile__order-status--' + order.status">
+              {{ order.status | translate }}
+            </div>
+          </div>
+          <div class="client-profile__order-details">
+           <div class="client-profile__order-product" *ngFor="let product of order.products">
+            <!-- Use product.productId.image and product.productId.name since productId is populated -->
+<img 
+  [src]="getOrderImageUrl(product.productId.image)" 
+  [attr.alt]="product.productId.name || 'Product image'" 
+  class="client-profile__order-product-img" 
+  (error)="handleImageError($event)"
+/>
+
+
+
+            <div class="client-profile__order-product-info">
+              <div class="client-profile__order-product-name">{{ product.productId.name }}</div>
+              <div class="client-profile__order-product-price">{{ product.price | currency }}</div>
+              <div class="client-profile__order-product-qty">{{ 'QUANTITY' | translate }}: {{ product.quantity }}</div>
+            </div>
+          </div>
+
+            <div class="client-profile__order-summary">
+              <div class="client-profile__order-total">
+                <span>{{ 'TOTAL' | translate }}:</span>
+                <span>{{ order.total | currency }}</span>
+              </div>
+              <button class="client-profile__order-view-details-btn" (click)="viewOrderDetails(order._id)">
+                {{ 'VIEW_DETAILS' | translate }}
+              </button>
+               <button class="client-profile__order-view-details-btn" (click)="downloadInvoice(order)">
+                <i class="fas fa-file-invoice"></i> {{ 'DOWNLOAD_INVOICE' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="client-profile__order-empty" *ngIf="recentOrders.length === 0">
+          <i class="fas fa-shopping-bag"></i>
+          <h3>{{ 'NO_ORDERS_YET' | translate }}</h3>
+          <p>{{ 'ORDER_HISTORY_EMPTY_MSG' | translate }}</p>
+          <button class="client-profile__button client-profile__button--primary" (click)="goToShop()">
+            {{ 'START_SHOPPING' | translate }}
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+<!-- Modal -->
+<!-- Order Details Modal -->
+<div class="modal" *ngIf="isOrderModalOpen">
+  <div class="modal-content">
+    <h2>{{ 'ORDER_DETAILS' | translate }}</h2>
+
+    <button class="modal-close-btn" (click)="isOrderModalOpen = false">&times;</button>
+
+    <div *ngIf="selectedOrderProducts.length > 0; else noProducts">
+      <div *ngFor="let item of selectedOrderProducts" class="order-product-item">
+ <img 
+          [src]="getOrderImageUrl(item.productId.image)" 
+          alt="{{ item.productId.name }}" 
+          class="product-image" 
+        />        <div class="product-info">
+          <h3>{{ item.productId.name }}</h3>
+          <p>{{ 'QUANTITY' | translate }}: {{ item.quantity }}</p>
+          <p>{{ 'PRICE' | translate }}: {{ item.price | currency }}</p>
+          <button (click)="goToProduct(item.productId._id)">{{ 'VIEW_PRODUCT' | translate }}</button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noProducts>
+      <p>{{ 'NO_PRODUCTS_IN_ORDER' | translate }}</p>
+    </ng-template>
+  </div>
+</div>
+
+  <!-- Wishlist Content -->
+  <div class="client-profile__content" *ngIf="activeTab === 'wishlist'">
+    <section class="client-profile__section" [attr.aria-labelledby]="'wishlist-title'">
+      <h2 id="wishlist-title" class="client-profile__section-title">
+        <i class="fas fa-heart client-profile__section-icon" aria-hidden="true"></i>
+        {{ 'WISHLIST.TITLE' | translate }}
+      </h2>
+      
+      <div class="client-profile__wishlist-grid">
+        <div class="client-profile__wishlist-item" *ngFor="let item of wishlistItems">
+          <div class="client-profile__wishlist-img-container">
+            <img [src]="getWishlistImageUrl(item.image)" [attr.alt]="item.name" class="client-profile__wishlist-img" />
+              <button class="client-profile__wishlist-remove" (click)="removeFromWishlist(item._id)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="client-profile__wishlist-info">
+            <h3 class="client-profile__wishlist-name">{{ item.name }}</h3>
+            <div class="client-profile__wishlist-price">{{ item.price | currency }}</div>
+            <div class="client-profile__wishlist-actions">
+            <button class="client-profile__wishlist-action" (click)="addToCart(item)">
+                <i class="fas fa-shopping-cart"></i> {{ 'WISHLIST.ADD_TO_CART' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="client-profile__wishlist-empty" *ngIf="wishlistItems.length === 0">
+          <i class="fas fa-heart"></i>
+          <h3>{{ 'WISHLIST.EMPTY' | translate }}</h3>
+          <p>{{ 'WISHLIST.BROWSE_PRODUCTS' | translate }}</p>
+          <button class="client-profile__button client-profile__button--primary" (click)="goToShop()">
+            {{ 'WISHLIST.BROWSE_PRODUCTS' | translate }}
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Settings Content -->
+  <div class="client-profile__content" *ngIf="activeTab === 'settings'">
+    <!-- Account Security Section -->
+    <section class="client-profile__section" [attr.aria-labelledby]="'security-title'">
+      <h2 id="security-title" class="client-profile__section-title">
+        <i class="fas fa-shield-alt client-profile__section-icon" aria-hidden="true"></i>
+        {{ 'ACCOUNT_SECURITY' | translate }}
+      </h2>
+
+      <!-- Email Update Form -->
+      <form class="client-profile__form" (ngSubmit)="updateEmail()" novalidate>
+        <div class="client-profile__form-header">
+          <h3 class="client-profile__form-title">
+            <i class="fas fa-envelope client-profile__form-icon" aria-hidden="true"></i>
+            {{ 'UPDATE_EMAIL_ADDRESS' | translate }}
+          </h3>
+          <p class="client-profile__form-desc">
+            {{ 'CHANGE_EMAIL_DESC' | translate }}
+          </p>
+        </div>
+        
+        <div class="client-profile__form-group">
+          <label for="new-email" class="client-profile__label">
+            {{ 'NEW_EMAIL_ADDRESS' | translate }}
+            <span class="client-profile__required" [attr.aria-label]="'REQUIRED' | translate">*</span>
+          </label>
+          <div class="client-profile__input-group">
+            <i class="fas fa-envelope client-profile__input-icon" aria-hidden="true"></i>
+            <input id="new-email"
+                   name="newEmail"
+                   type="email"
+                   [(ngModel)]="emailChange"
+                   class="client-profile__input"
+                   [placeholder]="'ENTER_NEW_EMAIL_PLACEHOLDER' | translate"
+                   [attr.aria-describedby]="'email-help'"
+                   required />
+          </div>
+          
+          <div id="email-help" class="client-profile__help-text">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            {{ 'CURRENT_EMAIL' | translate }}: {{ user.email }}
+          </div>
+        </div>
+        
+        <button type="submit" 
+                class="client-profile__button client-profile__button--primary"
+                [disabled]="!emailChange">
+          <i class="fas fa-paper-plane" aria-hidden="true"></i>
+          <span>{{ 'UPDATE_EMAIL' | translate }}</span>
+        </button>
+        <div *ngIf="emailUpdateSuccess" class="client-profile__success">
+  <i class="fas fa-check-circle" aria-hidden="true"></i> {{ emailUpdateSuccess }}
+    </div>
+    <div *ngIf="emailUpdateError" class="client-profile__error">
+      <i class="fas fa-exclamation-circle" aria-hidden="true"></i> {{ emailUpdateError }}
+    </div>
+
+      </form>
+
+   <form class="client-profile__form" (ngSubmit)="changePassword()" novalidate>
+  <!-- Header -->
+  <div class="client-profile__form-header">
+    <h3 class="client-profile__form-title">
+      <i class="fas fa-lock client-profile__form-icon" aria-hidden="true"></i>
+      {{ 'CHANGE_PASSWORD' | translate }}
+    </h3>
+    <p class="client-profile__form-desc">
+      {{ 'CHANGE_PASSWORD_DESC' | translate }}
+    </p>
+  </div>
+
+  <!-- Form Fields -->
+  <div class="client-profile__form-group client-profile__form-group--grid">
+    <!-- Current Password -->
+    <div class="client-profile__field-group">
+      <label for="current-password" class="client-profile__label">
+        {{ 'CURRENT_PASSWORD' | translate }}
+        <span class="client-profile__required" [attr.aria-label]="'REQUIRED' | translate">*</span>
+      </label>
+      <div class="client-profile__input-group">
+        <i class="fas fa-key client-profile__input-icon" aria-hidden="true"></i>
+        <input id="current-password"
+               name="currentPassword"
+               type="password"
+               [(ngModel)]="currentPassword"
+               class="client-profile__input"
+               [placeholder]="'ENTER_CURRENT_PASSWORD_PLACEHOLDER' | translate"
+               required />
+      </div>
+    </div>
+
+    <!-- New Password -->
+    <div class="client-profile__field-group">
+      <label for="new-password" class="client-profile__label">
+        {{ 'NEW_PASSWORD' | translate }}
+        <span class="client-profile__required" [attr.aria-label]="'REQUIRED' | translate">*</span>
+      </label>
+      <div class="client-profile__input-group">
+        <i class="fas fa-lock client-profile__input-icon" aria-hidden="true"></i>
+        <input id="new-password"
+               name="newPassword"
+               type="password"
+               [(ngModel)]="newPassword"
+               class="client-profile__input"
+               [placeholder]="'ENTER_NEW_PASSWORD_PLACEHOLDER' | translate"
+               required />
+      </div>
+      <div class="client-profile__help-text">
+        <i class="fas fa-info-circle" aria-hidden="true"></i>
+        {{ 'STRONG_PASSWORD_ADVICE' | translate }}
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="client-profile__field-group">
+      <label for="confirm-password" class="client-profile__label">
+        {{ 'CONFIRM_PASSWORD' | translate }}
+        <span class="client-profile__required" [attr.aria-label]="'REQUIRED' | translate">*</span>
+      </label>
+      <div class="client-profile__input-group">
+        <i class="fas fa-lock client-profile__input-icon" aria-hidden="true"></i>
+        <input id="confirm-password"
+               name="confirmPassword"
+               type="password"
+               [(ngModel)]="confirmPassword"
+               class="client-profile__input"
+               [placeholder]="'ENTER_CONFIRM_PASSWORD_PLACEHOLDER' | translate"
+               required />
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <button type="submit"
+          class="client-profile__button client-profile__button--primary client-profile__button--full-width"
+          [disabled]="!currentPassword || !newPassword || !confirmPassword">
+    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+    <span>{{ 'CHANGE_PASSWORD' | translate }}</span>
+  </button>
+
+  <!-- Success Message -->
+  <div *ngIf="passwordChangeSuccess" class="client-profile__success">
+    <i class="fas fa-check-circle" aria-hidden="true"></i>
+    {{ passwordChangeSuccess }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="passwordChangeError" class="client-profile__error">
+    <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+    {{ passwordChangeError }}
+  </div>
+</form>
+
+    </section>
+
+   
+  </div>
+
+  <!-- Danger Zone -->
+  <section class="client-profile__section client-profile__section--danger" [attr.aria-labelledby]="'danger-zone-title'">
+    <h2 id="danger-zone-title" class="client-profile__section-title">
+      <i class="fas fa-exclamation-triangle client-profile__section-icon" aria-hidden="true"></i>
+      {{ 'DANGER_ZONE' | translate }}
+    </h2>
+    
+    <div class="client-profile__danger-actions">
+      <button class="client-profile__button client-profile__button--danger" (click)="confirmDeactivate()" [attr.aria-label]="'DEACTIVATE_ACCOUNT' | translate">
+        <i class="fas fa-user-slash"></i> {{ 'DEACTIVATE_ACCOUNT' | translate }}
+      </button>
+      <button class="client-profile__button client-profile__button--danger" (click)="confirmDelete()" [attr.aria-label]="'DELETE_ACCOUNT' | translate">
+        <i class="fas fa-trash-alt"></i> {{ 'DELETE_ACCOUNT' | translate }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Quick Actions Floating Button -->
+  <div class="client-profile__fab-container">
+    <button class="client-profile__fab" (click)="toggleFabMenu()" [attr.aria-label]="'QUICK_ACTIONS' | translate">
+      <i class="fas fa-bolt"></i>
+    </button>
+    
+    <div class="client-profile__fab-menu" [class.client-profile__fab-menu--open]="fabMenuOpen">
+      <button class="client-profile__fab-action" (click)="goToCart()" [attr.aria-label]="'VIEW_CART' | translate">
+        <i class="fas fa-shopping-cart"></i>
+      </button>
+      <button class="client-profile__fab-action" (click)="goToShop()" [attr.aria-label]="'GO_TO_SHOP' | translate">
+        <i class="fas fa-store"></i>
+      </button>
+      <button class="client-profile__fab-action" (click)="contactSupport()" [attr.aria-label]="'CONTACT_SUPPORT' | translate">
+        <i class="fas fa-headset"></i>
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- Loading State -->
+<div class="client-profile__loading" *ngIf="!user" aria-live="polite" [attr.aria-label]="'LOADING_PROFILE' | translate">
+  <div class="client-profile__loading-content">
+    <i class="fas fa-spinner fa-spin client-profile__loading-icon" aria-hidden="true"></i>
+    <h2 class="client-profile__loading-title">{{ 'LOADING_YOUR_PROFILE' | translate }}</h2>
+    <p class="client-profile__loading-desc">{{ 'PLEASE_WAIT_WHILE_FETCHING' | translate }}</p>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="client-profile__modal" *ngIf="showEditModal">
+  <div class="client-profile__modal-content">
+    <div class="client-profile__modal-header">
+      <h3>{{ 'EDIT_PROFILE' | translate }}</h3>
+      <button class="client-profile__modal-close" (click)="closeEditModal()" [attr.aria-label]="'CLOSE_MODAL' | translate">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form class="client-profile__modal-form" (ngSubmit)="saveProfileChanges()">
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'FULL_NAME' | translate }}</label>
+        <input type="text" class="client-profile__input" [(ngModel)]="editForm.nom" name="nom">
+      </div>
+      
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'PHONE_NUMBER' | translate }}</label>
+        <input type="tel" class="client-profile__input" [(ngModel)]="editForm.telephone" name="telephone">
+      </div>
+      
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'ADDRESS' | translate }}</label>
+        <textarea class="client-profile__textarea" [(ngModel)]="editForm.adresse" name="adresse"></textarea>
+      </div>
+      
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'BIRTH_DATE' | translate }}</label>
+        <input type="date" class="client-profile__input" [(ngModel)]="editForm.dateNaissance" name="dateNaissance">
+      </div>
+      
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'GENDER' | translate }}</label>
+        <select class="client-profile__select" [(ngModel)]="editForm.gender" name="gender">
+          <option value="">{{ 'PREFER_NOT_TO_SAY' | translate }}</option>
+          <option value="male">{{ 'MALE' | translate }}</option>
+          <option value="female">{{ 'FEMALE' | translate }}</option>
+          <option value="other">{{ 'OTHER' | translate }}</option>
+        </select>
+      </div>
+      
+      <div class="client-profile__modal-actions">
+        <button type="button" class="client-profile__button client-profile__button--secondary" (click)="closeEditModal()" [attr.aria-label]="'CANCEL_EDIT' | translate">
+          {{ 'CANCEL' | translate }}
+        </button>
+        <button type="submit" class="client-profile__button client-profile__button--primary" [attr.aria-label]="'SAVE_CHANGES' | translate">
+          {{ 'SAVE_CHANGES' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Field Modal -->
+<div class="client-profile__modal" *ngIf="showFieldEditModal">
+  <div class="client-profile__modal-content">
+    <div class="client-profile__modal-header">
+      <h3>{{ 'EDIT' | translate }} {{ editingField | titlecase }}</h3>
+      <button class="client-profile__modal-close" (click)="closeFieldEditModal()" [attr.aria-label]="'CLOSE_MODAL' | translate">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form class="client-profile__modal-form" (ngSubmit)="saveFieldEdit()">
+      <div class="client-profile__form-group">
+        <label class="client-profile__label">{{ 'NEW' | translate }} {{ editingField | titlecase }}</label>
+        <input *ngIf="editingField !== 'gender' && editingField !== 'dateNaissance'" 
+               type="text" 
+               class="client-profile__input" 
+               [(ngModel)]="fieldEditValue"
+               [name]="editingField"
+               [placeholder]="'ENTER_NEW_' + (editingField | uppercase) | translate">
+        
+        <select *ngIf="editingField === 'gender'" 
+                class="client-profile__select" 
+                [(ngModel)]="fieldEditValue"
+                name="gender">
+          <option value="">{{ 'PREFER_NOT_TO_SAY' | translate }}</option>
+          <option value="male">{{ 'MALE' | translate }}</option>
+          <option value="female">{{ 'FEMALE' | translate }}</option>
+          <option value="other">{{ 'OTHER' | translate }}</option>
+        </select>
+        
+        <input *ngIf="editingField === 'dateNaissance'"
+               type="date"
+               class="client-profile__input"
+               [(ngModel)]="fieldEditValue"
+               name="dateNaissance">
+      </div>
+      
+      <div class="client-profile__modal-actions">
+        <button type="button" class="client-profile__button client-profile__button--secondary" (click)="closeFieldEditModal()" [attr.aria-label]="'CANCEL_EDIT' | translate">
+          {{ 'CANCEL' | translate }}
+        </button>
+        <button type="submit" class="client-profile__button client-profile__button--primary" [attr.aria-label]="'SAVE_CHANGES' | translate">
+          {{ 'SAVE_CHANGES' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+ <!-- Example: place this above your modals or inside profile page -->
+<div *ngIf="accountMessage" class="account-message success">{{ accountMessage }}</div>
+<div *ngIf="accountError" class="account-message error">{{ accountError }}</div>
+
+<div class="client-profile__modal" *ngIf="showDeleteModal">
+  <div class="client-profile__modal-content">
+    <div class="client-profile__modal-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> {{ 'DELETE_ACCOUNT' | translate }}</h3>
+      <button class="client-profile__modal-close" (click)="closeDeleteModal()" [attr.aria-label]="'CLOSE_MODAL' | translate">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="client-profile__modal-body">
+      <p><strong>{{ 'WARNING_ACTION_PERMANENT' | translate }}</strong></p>
+      <p>{{ 'ALL_DATA_PERMANENTLY_DELETED' | translate }}</p>
+      <p>{{ 'ARE_YOU_SURE_TO_PROCEED' | translate }}</p>
+      
+      <div class="client-profile__modal-actions">
+        <button type="button" class="client-profile__button client-profile__button--secondary" (click)="closeDeleteModal()" [attr.aria-label]="'CANCEL_DELETE' | translate">
+          {{ 'CANCEL' | translate }}
+        </button>
+        <button type="button" class="client-profile__button client-profile__button--danger" (click)="deleteAccount()" [attr.aria-label]="'CONFIRM_DELETE_ACCOUNT' | translate">
+          <i class="fas fa-trash-alt"></i> {{ 'DELETE_ACCOUNT_PERMANENTLY' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Deactivate Account Confirmation Modal -->
+<div class="client-profile__modal" *ngIf="showDeactivateModal">
+  <div class="client-profile__modal-content">
+    <div class="client-profile__modal-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> {{ 'DEACTIVATE_ACCOUNT' | translate }}</h3>
+      <button class="client-profile__modal-close" (click)="closeDeactivateModal()" [attr.aria-label]="'CLOSE_MODAL' | translate">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="client-profile__modal-body">
+      <p>{{ 'ACCOUNT_WILL_BE_DEACTIVATED' | translate }}</p>
+      <p>{{ 'ARE_YOU_SURE_TO_PROCEED' | translate }}</p>
+      
+      <div class="client-profile__modal-actions">
+        <button type="button" class="client-profile__button client-profile__button--secondary" (click)="closeDeactivateModal()" [attr.aria-label]="'CANCEL_DEACTIVATE' | translate">
+          {{ 'CANCEL' | translate }}
+        </button>
+        <button type="button" class="client-profile__button client-profile__button--danger" (click)="deactivateAccount()" [attr.aria-label]="'CONFIRM_DEACTIVATE_ACCOUNT' | translate">
+          <i class="fas fa-user-slash"></i> {{ 'DEACTIVATE_ACCOUNT' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Settings Modal -->
+<div class="client-profile__modal" *ngIf="showNotificationSettings">
+  <div class="client-profile__modal-content">
+    <div class="client-profile__modal-header">
+      <h3>{{ 'NOTIFICATION_SETTINGS' | translate }}</h3>
+      <button class="client-profile__modal-close" (click)="closeNotificationSettings()" [attr.aria-label]="'CLOSE_MODAL' | translate">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="client-profile__modal-body">
+      <div class="client-profile__form-group">
+        <label class="client-profile__toggle">
+          <input type="checkbox" [(ngModel)]="notificationEmail" (change)="toggleNotification('email')" />
+          <span class="client-profile__toggle-slider"></span>
+          {{ 'EMAIL_NOTIFICATIONS' | translate }}
+        </label>
+      </div>
+      
+      <div class="client-profile__form-group">
+        <label class="client-profile__toggle">
+          <input type="checkbox" [(ngModel)]="notificationPush" (change)="toggleNotification('push')" />
+          <span class="client-profile__toggle-slider"></span>
+          {{ 'PUSH_NOTIFICATIONS' | translate }}
+        </label>
+      </div>
+      
+      <div class="client-profile__modal-actions">
+        <button type="button" class="client-profile__button client-profile__button--primary" (click)="closeNotificationSettings()">
+          {{ 'SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+    <div *ngIf="notificationSuccess" class="alert alert-success">
+  {{ notificationSuccess }}
+</div>
+<div *ngIf="notificationError" class="alert alert-danger">
+  {{ notificationError }}
+</div>
+
+  </div>
+</div>

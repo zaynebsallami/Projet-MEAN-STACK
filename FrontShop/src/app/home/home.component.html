@@ -1,0 +1,194 @@
+<div class="home-container" [ngClass]="{'dark-mode': isDarkMode}">
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress">
+    <div id="scrollProgress" class="progress-bar"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-slider">
+      <div class="hero-slide" 
+           *ngFor="let slide of heroSlides; let i = index"
+           [class.active]="currentSlide === i"
+           [style.background-image]="'url(' + slide.image + ')'">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-badge animate-fade-in reveal-text">
+            <span>{{ 'NEW_COLLECTION' | translate }}</span>
+          </div>
+          <h1 class="hero-title animate-slide-up reveal-text">
+            {{ slide.title | translate }}
+          </h1>
+          <p class="hero-subtitle animate-slide-up delay-1 reveal-text">
+            {{ slide.subtitle | translate }}
+          </p>
+          <div class="hero-actions animate-slide-up delay-2 reveal-text">
+            <button class="btn btn-primary" (click)="scrollToProducts()">
+              {{ 'SHOP_NOW' | translate }}
+              <i class="fas fa-arrow-right"></i>
+            </button>
+            <button class="btn btn-secondary" (click)="scrollToCategories()">
+              {{ 'BROWSE_CATEGORIES' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hero Navigation -->
+    <div class="hero-nav">
+      <button *ngFor="let slide of heroSlides; let i = index"
+              [class.active]="currentSlide === i"
+              (click)="goToSlide(i)">
+      </button>
+    </div>
+  </section>
+
+  <!-- Promotional Banners -->
+  <section class="promo-section">
+    <div class="container">
+      <div class="promo-grid">
+        <div class="promo-card promo-shipping reveal-item" data-delay="0">
+          <div class="promo-icon">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          <div class="promo-content">
+            <h3>{{ 'FREE_SHIPPING' | translate }}</h3>
+            <p>{{ 'FREE_SHIPPING_DESC' | translate }}</p>
+          </div>
+        </div>
+        
+        <div class="promo-card promo-returns reveal-item" data-delay="200">
+          <div class="promo-icon">
+            <i class="fas fa-undo-alt"></i>
+          </div>
+          <div class="promo-content">
+            <h3>{{ 'EASY_RETURNS' | translate }}</h3>
+            <p>{{ 'EASY_RETURNS_DESC' | translate }}</p>
+          </div>
+        </div>
+        
+        <div class="promo-card promo-support reveal-item" data-delay="400">
+          <div class="promo-icon">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div class="promo-content">
+            <h3>{{ 'SUPPORT_24_7' | translate }}</h3>
+            <p>{{ 'SUPPORT_24_7_DESC' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flash Sale Banner -->
+<section class="flash-sale-banner" *ngIf="highlightedFlashSale">
+  <div class="container">
+    <div class="flash-content">
+      <div class="flash-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="flash-text">
+        <h2>{{ highlightedFlashSale.title }}</h2>
+        <p>{{ 'FLASH_SALE_DESC' | translate }}</p>
+        <p>Discount: {{ highlightedFlashSale.discount }}%</p>
+      </div>
+<div class="flash-timer" *ngIf="flashSale">
+  <div class="timer-item">
+    <span class="timer-number">{{ hours }}</span>
+    <span class="timer-label">{{ 'HOURS' | translate }}</span>
+  </div>
+  <div class="timer-item">
+    <span class="timer-number">{{ minutes }}</span>
+    <span class="timer-label">{{ 'MINUTES' | translate }}</span>
+  </div>
+  <div class="timer-item">
+    <span class="timer-number">{{ seconds }}</span>
+    <span class="timer-label">{{ 'SECONDS' | translate }}</span>
+  </div>
+</div>
+
+      <button class="btn btn-flash">
+        {{ 'SHOP_FLASH_SALE' | translate }}
+        <i class="fas fa-fire"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Categories Section -->
+  <section id="categories-section" class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title reveal-text">{{ 'SHOP_BY_CATEGORY' | translate }}</h2>
+        <p class="section-subtitle reveal-text">{{ 'SHOP_BY_CATEGORY_DESC' | translate }}</p>
+      </div>
+      
+      <div class="categoriess-grid" *ngIf="categories.length > 0">
+        <div *ngFor="let category of categories.slice(0, 8); let i = index" 
+             class="category-card modern-card reveal-item"
+             [attr.data-delay]="i * 100"
+             (click)="navigateToCategory(category)"
+             (mouseenter)="onCategoryHover(i)"
+             (mouseleave)="onCategoryLeave(i)">
+          
+          <div class="category-image">
+           <img 
+  [src]="getCategoryImageUrl(category.image)" 
+  [alt]="category.name | translate" 
+  class="category-image"
+  loading="lazy"
+  (error)="onCategoryImageError($event, category)"
+/>
+
+            <div class="category-overlay"></div>
+            <div class="category-trending" *ngIf="category.trendingPercentage > 80">
+              <i class="fas fa-fire"></i>
+              <span>{{ 'TRENDING' | translate }}</span>
+            </div>
+          </div>
+          
+          <div class="category-info">
+            <div class="category-details">
+              <h3 class="category-name">{{ category.name | translate }}</h3>
+              <p class="category-count">
+{{ category.productCount || 0 }} {{ 'TEXT.PRODUCTS_NAME' | translate }}
+              </p>
+              <div class="category-trend" *ngIf="category.trendingPercentage">
+                <div class="trend-bar">
+                  <div class="trend-fill" [style.width.%]="category.trendingPercentage"></div>
+                </div>
+                <span class="trend-text">{{ category.trendingPercentage }}% {{ 'POPULAR' | translate }}</span>
+              </div>
+            </div>
+            <div class="category-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ 
+
+
+  <!-- Back to Top Button -->
+  <button class="back-to-top" 
+          [class.visible]="scrollProgress > 20"
+          (click)="scrollToTop()">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+</div>

@@ -1,0 +1,240 @@
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+/* Apply cosmic theme variables */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--ct);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+  }
+}
+
+/* Heading style */
+.heading {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: var(--cosmic);
+  position: relative;
+  padding-bottom: 10px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: var(--primary-gradient);
+    border-radius: 3px;
+  }
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--cosmic);
+    font-size: 0.95rem;
+  }
+}
+
+/* Input fields */
+input,
+textarea,
+select {
+  padding: 12px 15px;
+  border: 1px solid var(--nebula-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--cosmic);
+    box-shadow: 0 0 0 2px var(--deep);
+  }
+  
+  &::placeholder {
+    color: rgba(225, 147, 203, 0.5);
+  }
+}
+
+/* File input styles */
+.file-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-label {
+  color: var(--cosmic);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.file-button {
+  background: var(--secondary-gradient);
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  width: fit-content;
+  
+  &:hover {
+    background: var(--primary-gradient);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 20, 103, 0.3);
+  }
+  
+  .icon {
+    margin-right: 8px;
+  }
+}
+
+/* Image preview */
+img {
+  border-radius: 8px;
+  border: 2px solid var(--nebula-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 150px;
+  max-height: 150px;
+  object-fit: cover;
+}
+
+/* Small text */
+.small-text {
+  font-size: 0.8rem;
+  color: var(--starfield-color);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* Submit button */
+.submit-button {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background: var(--secondary-gradient);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 20, 103, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    transition: all 0.3s ease;
+  }
+  
+  &:hover::after {
+    left: 100%;
+  }
+}
+
+/* Submitted confirmation */
+.submitted {
+  text-align: center;
+  padding: 30px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid var(--nebula-color);
+}
+
+.check-icon {
+  margin: 0 auto 15px;
+  filter: drop-shadow(0 2px 4px rgba(255, 20, 103, 0.4));
+}
+
+.success-title {
+  font-size: 1.8rem;
+  margin: 15px 0;
+  color: var(--cosmic);
+  background: linear-gradient(to right, #ff7f50, #ff69b4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.success-message {
+  color: var(--starfield-color);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Dark mode adjustments */
+body.dark-mode {
+  .container {
+    background-color: var(--dark-space);
+    box-shadow: 0 4px 20px rgba(255, 20, 103, 0.1);
+  }
+  
+  input,
+  textarea,
+  select {
+    background-color: rgba(5, 7, 27, 0.6);
+    border-color: var(--starfield-color);
+  }
+  
+  .file-button {
+    box-shadow: 0 2px 8px rgba(255, 20, 103, 0.2);
+  }
+  
+  .submitted {
+    background: rgba(5, 7, 27, 0.6);
+  }
+}
+

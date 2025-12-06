@@ -1,0 +1,88 @@
+<header class="header">
+    <div class="header-left">
+      <button class="btn-icon" (click)="toggleSidebar.emit()">
+        <i class="fas fa-bars"></i>
+      </button>
+     
+    </div>
+    
+  <!-- Language Selector -->
+  <div class="language-selector">
+    <div class="select">
+      <div class="selected" (click)="toggleLanguageDropdown()">
+        {{ currentLang | uppercase }}
+        <i class="fa fa-angle-down"></i>
+      </div>    
+      <div class="options" *ngIf="isLanguageOpen">
+        <div title="English">
+          <input
+            id="english"
+            name="language"
+            type="radio"
+            value="en"
+            [checked]="currentLang === 'en'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="english">English</label>
+        </div>
+        <div title="Français">
+          <input
+            id="french"
+            name="language"
+            type="radio"
+            value="fr"
+            [checked]="currentLang === 'fr'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="french">Français</label>
+        </div>
+        <div title="العربية">
+          <input
+            id="arabic"
+            name="language"
+            type="radio"
+            value="ar"
+            [checked]="currentLang === 'ar'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="arabic">العربية</label>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="header-right">
+      <button class="btn-icon" (click)="toggleTheme.emit()">
+        <i [class]="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+      </button>
+      
+      
+      
+      <div class="user-dropdown">
+        <button class="user-button">
+         <img [src]="adminData?.avatar" alt="Avatar">
+  <span *ngIf="!isMobile">{{ adminData?.nom || adminData?.lastName }}</span>
+
+          <i class="fas fa-chevron-down" *ngIf="!isMobile"></i>
+        </button>
+        <div class="dropdown-menu">
+          <a [routerLink]="['/admin/profile']">
+            <i class="fas fa-user"></i>
+            Profile
+          </a>
+          <a href="#">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+          <a href="#">
+            <i class="fas fa-question-circle"></i>
+            Help
+          </a>
+        <div class="dropdown-divider"></div>
+          <a (click)="logout()" class="text-danger">
+            <i class="fas fa-sign-out-alt"></i>
+             Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>

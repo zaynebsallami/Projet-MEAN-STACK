@@ -1,0 +1,191 @@
+<section class="user">
+  <div class="user_options-container">
+<div *ngIf="confirmationMessage" class="success-message">
+  {{ confirmationMessage }}
+</div>
+
+
+    <div class="user_options-text">
+      <div class="user_options-unregistered">
+        <h2 class="user_unregistered-title">{{ 'LOGIN.DONT_HAVE_ACCOUNT' | translate }}</h2>
+        <p class="user_unregistered-text">{{ 'LOGIN.CREATE_ONE' | translate }}</p>
+        <button class="user_unregistered-signup" (click)="onSignupClick()">{{ 'LOGIN.SIGN_UP' | translate }}</button>
+      </div>
+
+      <div class="user_options-registered">
+        <h2 class="user_registered-title">{{ 'LOGIN.HAVE_ACCOUNT' | translate }}</h2>
+        <p class="user_registered-text">{{ 'LOGIN.LOGIN_IF_YOU_HAVE' | translate }}</p>
+        <button class="user_registered-login" (click)="onLoginClick()">{{ 'LOGIN.LOGIN' | translate }}</button>
+      </div>
+    </div>
+
+    <div class="user_options-forms" [ngClass]="{ 'bounceLeft': isSignup, 'bounceRight': !isSignup }" id="user_options-forms">
+
+      <!-- LOGIN FORM -->
+      <div class="user_forms-login" *ngIf="!isSignup && !isResetPassword">
+        <h2 class="forms_title">{{ 'LOGIN.LOGIN' | translate }}</h2>
+        <form class="forms_form" (ngSubmit)="onLoginSubmit()">
+          <fieldset class="forms_fieldset">
+            <div class="forms_field">
+              <label for="email" class="forms_field-label">{{ 'LOGIN.EMAIL' | translate }}</label>
+              <input type="email" id="email" placeholder="{{ 'LOGIN.ENTER_EMAIL' | translate }}"
+                     class="forms_field-input" [(ngModel)]="loginEmail"
+                     name="loginEmail" required autofocus />
+            </div>
+            <div class="forms_field">
+              <label for="password" class="forms_field-label">{{ 'LOGIN.PASSWORD' | translate }}</label>
+              <input type="password" id="password" placeholder="{{ 'LOGIN.PASSWORD' | translate }}"
+                     class="forms_field-input" [(ngModel)]="loginPassword"
+                     name="loginPassword" required />
+            </div>
+          </fieldset>
+          <div class="forms_buttons">
+            <button type="button" class="forms_buttons-forgot" (click)="onForgotPasswordClick()">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</button>
+            <input type="submit" value="{{ 'LOGIN.LOG_IN' | translate }}" class="forms_buttons-action"
+                   [disabled]="!loginEmail || !loginPassword" />
+          </div>
+        </form>
+
+        <div *ngIf="formErrorMessage" class="error-message">
+          {{ formErrorMessage }}
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div class="user_forms-forgot-password" *ngIf="isResetPassword">
+        <h2 class="forms_title">{{ 'LOGIN.RESET_PASSWORD' | translate }}</h2>
+        <form (ngSubmit)="onForgotPasswordSubmit()">
+          <fieldset class="forms_fieldset">
+            <div class="forms_field">
+              <label for="resetEmail" class="forms_field-label">{{ 'LOGIN.EMAIL' | translate }}</label>
+              <input type="email" id="resetEmail" placeholder="{{ 'LOGIN.ENTER_EMAIL' | translate }}"
+                     class="forms_field-input" [(ngModel)]="resetEmail"
+                     name="resetEmail" required />
+            </div>
+          </fieldset>
+          <div class="forms_buttons">
+            <button type="button" (click)="cancelForgotPassword()">{{ 'LOGIN.CANCEL' | translate }}</button>
+            <input type="submit" value="{{ 'LOGIN.SEND_RESET_LINK' | translate }}" class="forms_buttons-action" [disabled]="!resetEmail" />
+          </div>
+        </form>
+
+        <div *ngIf="formErrorMessage" class="error-message">
+          {{ formErrorMessage }}
+        </div>
+        <div *ngIf="confirmationMessage" class="confirmation-message">
+          {{ confirmationMessage }}
+        </div>
+      </div>
+
+      <!-- SIGN UP FORM -->
+      <div class="user_forms-signup" *ngIf="isSignup">
+        <h2 class="forms_title">{{ 'LOGIN.SIGN_UP_TITLE' | translate }}</h2>
+        <div *ngIf="formErrorMessage" class="error-message">
+          {{ formErrorMessage }}
+        </div>
+        <form class="forms_form" #signupForm="ngForm" (ngSubmit)="onSignupSubmit()">
+          <fieldset class="forms_fieldset">
+            <div class="forms_field">
+              <label for="fullname" class="forms_field-label">{{ 'LOGIN.FULL_NAME' | translate }}</label>
+              <input type="text" id="fullname" class="forms_field-input" placeholder="{{ 'LOGIN.FULL_NAME' | translate }}"
+                     [(ngModel)]="signupNom" name="signupNom" #signupNomRef="ngModel" required />
+              <div *ngIf="signupNomRef.invalid && signupNomRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="signupEmail" class="forms_field-label">{{ 'LOGIN.EMAIL' | translate }}</label>
+              <input type="email" id="signupEmail" class="forms_field-input" placeholder="{{ 'LOGIN.ENTER_EMAIL' | translate }}"
+                     [(ngModel)]="signupEmail" name="signupEmail" #signupEmailRef="ngModel" required />
+              <div *ngIf="signupEmailRef.invalid && signupEmailRef.touched" class="error-message">
+                {{ 'LOGIN.EMAIL_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="signupPassword" class="forms_field-label">{{ 'LOGIN.PASSWORD' | translate }}</label>
+              <input type="password" id="signupPassword" class="forms_field-input" placeholder="{{ 'LOGIN.PASSWORD' | translate }}"
+                     [(ngModel)]="signupPassword" name="signupPassword" #signupPasswordRef="ngModel" required />
+              <div *ngIf="signupPasswordRef.invalid && signupPasswordRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="confirmPassword" class="forms_field-label">{{ 'LOGIN.CONFIRM_PASSWORD' | translate }}</label>
+              <input type="password" id="confirmPassword" class="forms_field-input" placeholder="{{ 'LOGIN.CONFIRM_PASSWORD' | translate }}"
+                     [(ngModel)]="signupConfirmPassword" name="signupConfirmPassword" #signupConfirmPasswordRef="ngModel" required />
+              <div *ngIf="signupConfirmPasswordRef.invalid && signupConfirmPasswordRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="adresse" class="forms_field-label">{{ 'LOGIN.ADDRESS' | translate }}</label>
+              <input type="text" id="adresse" class="forms_field-input" placeholder="{{ 'LOGIN.ADDRESS' | translate }}"
+                     [(ngModel)]="signupAdresse" name="signupAdresse" #signupAdresseRef="ngModel" required />
+              <div *ngIf="signupAdresseRef.invalid && signupAdresseRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="telephone" class="forms_field-label">{{ 'LOGIN.PHONE' | translate }}</label>
+              <input type="text" id="telephone" class="forms_field-input" placeholder="{{ 'LOGIN.PHONE' | translate }}"
+                     [(ngModel)]="signupTelephone" name="signupTelephone" #signupTelephoneRef="ngModel" required />
+              <div *ngIf="signupTelephoneRef.invalid && signupTelephoneRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label for="dateNaissance" class="forms_field-label">{{ 'LOGIN.BIRTHDATE' | translate }}</label>
+              <input type="date" id="dateNaissance" class="forms_field-input" placeholder="{{ 'LOGIN.BIRTHDATE' | translate }}"
+                     [(ngModel)]="signupDateNaissance" name="signupDateNaissance" #signupDateNaissanceRef="ngModel" required />
+              <div *ngIf="signupDateNaissanceRef.invalid && signupDateNaissanceRef.touched" class="error-message">
+                {{ 'LOGIN.ALL_FIELDS_REQUIRED' | translate }}
+              </div>
+            </div>
+
+            <div class="forms_field">
+              <label class="forms_field-label">{{ 'LOGIN.REGISTER_AS' | translate }}</label>
+              <div class="radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="vendeur"
+                    [(ngModel)]="userType"
+                    #userTypeRef="ngModel"
+                    required
+                  />
+                  {{ 'LOGIN.SELLER' | translate }}
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="client"
+                    [(ngModel)]="userType"
+                    required
+                  />
+                  {{ 'LOGIN.CLIENT' | translate }}
+                </label>
+              </div>
+
+              <div *ngIf="userTypeRef.invalid && userTypeRef.touched" class="error-message">
+                {{ 'LOGIN.PLEASE_SELECT_ROLE' | translate }}
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="forms_buttons">
+            <input type="submit" value="{{ 'LOGIN.SIGN_UP' | translate }}" class="forms_buttons-action" [disabled]="signupForm.invalid" />
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>

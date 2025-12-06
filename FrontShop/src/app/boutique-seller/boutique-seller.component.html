@@ -1,0 +1,195 @@
+<div class="boutique-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+    <p>{{ 'LOADING.BOUTIQUE' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error | translate }}</p>
+    <button (click)="retryLoading()" class="retry-btn">
+      {{ 'BUTTON.RETRY' | translate }}
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && seller" class="boutique-content">
+    
+    <!-- Navigation -->
+    <div class="navigation">
+      <a routerLink="/seller" class="back-btn">
+        ← {{ 'BUTTON.BACK_SELLERS' | translate }}
+      </a>
+    </div>
+
+    <!-- Boutique Header -->
+    <div class="boutique-header">
+      <div class="boutique-hero">
+        <img
+          class="boutique-image"
+          [src]="getStorePhotoUrl()"
+          [alt]="seller.boutique.businessName"
+        />
+        
+        <div class="boutique-info">
+          <h1>{{ seller.boutique.businessName }}</h1>
+          <p class="seller-name">by {{ seller.nom }}</p>
+          
+          <!-- Unified rating display component -->
+          <div *ngIf="getSellerRating() > 0" class="rating-container">
+            <div class="stars">
+              <span *ngFor="let star of getStarArray(getSellerRating())" 
+                    class="star" 
+                    [class.filled]="star">★</span>
+            </div>
+            <span class="rating-text">{{ getSellerRating().toFixed(1) }} / 5</span>
+          </div>
+          
+          <div class="category-tag">
+            <span>{{ seller.boutique.productType }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Moved description and contact info to separate sections -->
+      <div class="boutique-description">
+        <h3>{{ 'TEXT.ABOUT' | translate }}</h3>
+        <p>{{ seller.boutique.description }}</p>
+      </div>
+
+      <div class="contact-info">
+        <h3>{{ 'TEXT.CONTACT' | translate }}</h3>
+        <div class="contact-details">
+          <div class="contact-item">📧 {{ seller.email }}</div>
+          <div class="contact-item">📞 {{ seller.telephone }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="products-section">
+      <div class="section-header">
+        <h2>{{ 'TEXT.PRODUCTS_FROM' | translate }} {{ seller.boutique.businessName }}</h2>
+        <span class="product-count">{{ getProductCount() }} {{ 'TEXT.PRODUCTS' | translate }}</span>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="products.length === 0" class="no-products">
+        <div class="empty-state">
+          <span>📦</span>
+          <h3>{{ 'TEXT.NO_PRODUCTS' | translate }}</h3>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="products.length > 0" class="products-grid">
+        <div *ngFor="let product of products" class="product-card" (click)="openModal(product)">
+          
+          <div class="product-image-container">
+            <img 
+              [src]="getListProductImageUrl(product.image)" 
+              [alt]="product.name || 'Produit'" 
+              class="product-image"
+              (error)="handleImageError($event)" 
+            />
+            <div class="product-overlay">
+              <button class="quick-view-btn">{{ 'BUTTON.QUICK_VIEW' | translate }}</button>
+            </div>
+          </div>
+          
+          <div class="product-info">
+            <h3>{{ product.name }}</h3>
+            <p>
+              {{ product.description?.slice(0, 100) }}
+              {{ product.description?.length > 100 ? '...' : '' }}
+            </p>
+            <div class="product-footer">
+              <span class="price">{{ product.price | currency:'MAD':'symbol' }}</span>
+              <button (click)="addToCart($event, product)" class="add-to-cart-btn">
+                🛒 {{ 'BUTTON.ADD_TO_CART' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Moved rating section to logical position after products -->
+    <!-- Rating Section -->
+    <div class="rate-boutique-section" *ngIf="userLoggedIn">
+      <h3>{{ 'RATE_THIS_BOUTIQUE' | translate }}</h3>
+      
+      <div class="stars-input">
+        <span *ngFor="let star of [1,2,3,4,5]" 
+              (mouseenter)="hoverRating = star"
+              (mouseleave)="hoverRating = 0"
+              (click)="selectRating(star)"
+              [class.selected]="star <= (hoverRating || selectedRating)">★</span>
+      </div>
+
+      <textarea [(ngModel)]="ratingComment" 
+                [placeholder]="'WRITE_COMMENT' | translate"></textarea>
+
+      <button (click)="submitRating()">{{ 'SUBMIT_RATING' | translate }}</button>
+
+      <p *ngIf="ratingSuccessMessage" class="success-message">{{ ratingSuccessMessage }}</p>
+      <p *ngIf="ratingErrorMessage" class="error-message">{{ ratingErrorMessage }}</p>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section" *ngIf="sellerRatings.length > 0">
+      <button (click)="showReviews = !showReviews" class="toggle-reviews-btn">
+        {{ showReviews ? 'Masquer les avis' : 'Voir les avis' }}
+      </button>
+
+      <div class="boutique-ratings-section" *ngIf="showReviews">
+        <h3>Customer Reviews</h3>
+        
+        <div class="rating-comment" *ngFor="let rating of sellerRatings">
+          <p class="user-name">👤 {{ rating.user?.nom || 'Utilisateur' }}</p>
+          
+          <div class="star-display">
+            <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= rating.rating">★</span>
+          </div>
+          
+          <p class="comment-text">📝 {{ rating.comment }}</p>
+          <hr />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal-backdrop" *ngIf="selectedProduct" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closeModal()">×</button>
+
+      <ng-container *ngIf="selectedProduct; else loadingModal">
+        <img [src]="getModalProductImageUrl(selectedProduct.image)"
+             (error)="handleImageError($event)"
+             [alt]="selectedProduct.name"
+             class="product-image"/>
+
+        <h2>{{ selectedProduct.name || selectedProduct.title || 'No title' }}</h2>
+        <p>{{ selectedProduct.description || selectedProduct.desc || 'No description' }}</p>
+        <p class="price">
+          {{ (selectedProduct.price || selectedProduct.cost || 0) | currency:'MAD':'symbol' }}
+        </p>
+
+        <button (click)="addToCart($event, selectedProduct)" class="add-to-cart-btn">
+          🛒 {{ 'BUTTON.ADD_TO_CART' | translate }}
+        </button>
+      </ng-container>
+
+      <ng-template #loadingModal>
+        <p>Loading product details...</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Confirmation Toast -->
+  <div *ngIf="confirmationMessage" class="confirmation-toast">
+    {{ confirmationMessage }}
+  </div>
+</div>

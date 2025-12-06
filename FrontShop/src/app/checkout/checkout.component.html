@@ -1,0 +1,163 @@
+<div class="checkout-container">
+  <h1>Checkout</h1>
+
+<form (ngSubmit)="placeOrder(checkoutForm)" #checkoutForm="ngForm" class="checkout-form">
+    <!-- Shipping Information -->
+    <section class="shipping-info">
+      <h2>Shipping Information</h2>
+
+      <label>
+        Full Name
+        <input
+          type="text"
+          name="fullName"
+          [(ngModel)]="shippingInfo.fullName"
+          required
+          #fullName="ngModel"
+        />
+      </label>
+      <div *ngIf="fullName.invalid && fullName.touched" class="error">
+        Full Name is required.
+      </div>
+
+      <label>
+        Address
+        <input
+          type="text"
+          name="address"
+          [(ngModel)]="shippingInfo.address"
+          required
+          #address="ngModel"
+        />
+      </label>
+      <div *ngIf="address.invalid && address.touched" class="error">
+        Address is required.
+      </div>
+
+      <label>
+        City
+        <input
+          type="text"
+          name="city"
+          [(ngModel)]="shippingInfo.city"
+          required
+          #city="ngModel"
+        />
+      </label>
+      <div *ngIf="city.invalid && city.touched" class="error">
+        City is required.
+      </div>
+
+      <label>
+        Postal Code
+        <input
+          type="text"
+          name="postalCode"
+          [(ngModel)]="shippingInfo.postalCode"
+          required
+          pattern="[0-9]{4,10}"
+          #postalCode="ngModel"
+        />
+      </label>
+      <div *ngIf="postalCode.invalid && postalCode.touched" class="error">
+        Enter a valid postal code.
+      </div>
+
+      <label>
+        Country
+        <input
+          type="text"
+          name="country"
+          [(ngModel)]="shippingInfo.country"
+          required
+          #country="ngModel"
+        />
+      </label>
+      <div *ngIf="country.invalid && country.touched" class="error">
+        Country is required.
+      </div>
+    </section>
+
+    <!-- Payment Information -->
+    <section class="payment-info">
+      <h2>Payment Details</h2>
+
+      <label>
+        Cardholder Name
+        <input
+          type="text"
+          name="cardName"
+          [(ngModel)]="paymentInfo.cardName"
+          required
+          #cardName="ngModel"
+        />
+      </label>
+      <div *ngIf="cardName.invalid && cardName.touched" class="error">
+        Cardholder Name is required.
+      </div>
+
+      <label>
+        Card Number
+        <input
+          type="text"
+          name="cardNumber"
+          [(ngModel)]="paymentInfo.cardNumber"
+          required
+         pattern="^[0-9 ]{13,23}$"
+          maxlength="19"
+          #cardNumber="ngModel"
+        />
+      </label>
+      <div *ngIf="cardNumber.invalid && cardNumber.touched" class="error">
+        Enter a valid card number.
+      </div>
+
+      <label>
+        Expiration Date (MM/YY)
+        <input
+          type="text"
+          name="expiry"
+          [(ngModel)]="paymentInfo.expiry"
+          required
+          pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$"
+          maxlength="5"
+          #expiry="ngModel"
+        />
+      </label>
+      <div *ngIf="expiry.invalid && expiry.touched" class="error">
+        Enter a valid expiration date.
+      </div>
+
+      <label>
+        CVV
+        <input
+          type="password"
+          name="cvv"
+          [(ngModel)]="paymentInfo.cvv"
+          required
+          pattern="[0-9]{3,4}"
+          maxlength="4"
+          #cvv="ngModel"
+        />
+      </label>
+      <div *ngIf="cvv.invalid && cvv.touched" class="error">
+        Enter a valid CVV.
+      </div>
+    </section>
+
+    <!-- Order Summary -->
+    <section class="order-summary">
+      <h2>Order Summary</h2>
+      <p>Items: {{itemCount}}</p>
+      <p>Subtotal: {{subtotal | currency:'TND':'symbol':'1.2-2'}}</p>
+      <p>Shipping: {{shipping === 0 ? 'Free' : (shipping | currency:'TND':'symbol':'1.2-2')}}</p>
+      <p *ngIf="discount > 0">Discount: -{{discount | currency:'TND':'symbol':'1.2-2'}}</p>
+      <hr />
+      <p><strong>Total: {{total | currency:'TND':'symbol':'1.2-2'}}</strong></p>
+    </section>
+
+    <button type="submit" [disabled]="checkoutForm.invalid" class="place-order-btn">
+      Place Order
+    </button>
+  </form>
+</div>

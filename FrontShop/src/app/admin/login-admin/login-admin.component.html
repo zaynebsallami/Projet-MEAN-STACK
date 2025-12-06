@@ -1,0 +1,55 @@
+<div class="login-page">
+  <div *ngIf="notification.show" class="notification" [ngClass]="notification.type">
+    <span>{{ notification.message }}</span>
+  </div>
+
+  <div class="login-card">
+    <div class="logo">
+      <span class="shield-icon">🛡️</span>
+      <h1>Administration</h1>
+      <p>Connectez-vous à votre espace administrateur</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Email</label>
+        <input formControlName="email" type="email" placeholder="admin@example.com" [class.error]="email?.invalid && email?.touched" />
+        <div *ngIf="email?.invalid && email?.touched" class="error-text">Email invalide</div>
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="password-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" [class.error]="password?.invalid && password?.touched" />
+          <button type="button" class="toggle-password" (click)="toggleShowPassword()">{{ showPassword ? '🙈' : '👁️' }}</button>
+        </div>
+        <div *ngIf="password?.invalid && password?.touched" class="error-text">Mot de passe requis (6+ caractères)</div>
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" formControlName="rememberMe" id="rememberMe" />
+        <label for="rememberMe">Se souvenir de moi</label>
+      </div>
+
+      <div *ngIf="loginAttempts > 0 && !isBlocked" class="attempts">
+        Tentatives échouées : {{ loginAttempts }} / 5
+      </div>
+
+      <div *ngIf="isBlocked" class="blocked">
+        Compte bloqué temporairement.
+      </div>
+
+      <button type="submit" [disabled]="isLoading || isBlocked">
+        {{ isLoading ? 'Connexion en cours...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <a routerLink="/admin/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+
+    <!-- ✅ Supprimé : la section de comptes de démo inutilisée -->
+
+    <div class="back-link">
+      <a (click)="goToHome()" class="back-link-anchor">← Retour à l'accueil</a>
+    </div>
+  </div>
+</div>

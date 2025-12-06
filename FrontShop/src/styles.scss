@@ -1,0 +1,71 @@
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+:root{
+    --background-light: #f8f9fa;
+    --primary-gradient: linear-gradient(to right, #ff7f50, #ff69b4); // Orange-pink gradient
+    --secondary-gradient: linear-gradient(to right, #fe38b2, #fbc2f0); // Yellow-orange gradient
+    --text-color-light: #000000; // Light gray for dark mode text
+    --text-color-dark: #ffffff; // Dark gray for light mode text
+    --cosmic: #e0347a; // Cosmic color
+    --deep: rgba(255, 20, 103, 0.4); // Deep color
+    --dark-space: #05071b; // Dark space color
+    --nebula-color: rgba(245, 166, 194, 0.4); // Nebula color
+    --starfield-color: rgba(166, 41, 85, 0.889); // Starfield color
+    --cosmic-ring-color: rgba(255, 169, 199, 0.868); // Cosmic ring color
+    --profile-bg: #e0347a;
+    --profile-color: #333;
+    --profile-diameter: 50px;
+    --profile-btn-border-radius: 50%;
+    --profile-transition: all 0.2s ease-in-out;
+    --profile-hover-scale: 1.1;
+    --profile-active-scale: 0.95;
+    --dropdown-bg: #eee;
+    --dropdown-border-radius: 0.375em;
+    --dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --dropdown-button-hover-bg: #8f878a;
+    --ct:#e5e6e8;
+    --dropdown-button-hover-text-color: #fff;
+}
+body {
+  background-color: #ffffff;
+  color: #000000;
+}
+body.dark-mode{
+  background-color: #000000;
+  color: #ffffff;
+  --ct:#05071b;
+}
+
+body .navbar {
+  background-color: #f8f9fa;
+}
+
+body .category-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+}
+
+/* Dark Theme */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.dark-mode .navbar {
+  background-color: #1f1f1f;
+  color: #ffffff;
+}
+
+body.dark-mode .category-card {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+}
+body.dark-mode .product-card {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+}
+body.footer{
+  background-color: #eee;
+}
+body.dark-mode .footer{
+  background-color: #333;
+}

@@ -1,0 +1,98 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+    <div class="sidebar-header">
+      <div class="logo" *ngIf="!isCollapsed">
+        <img src="../../../assets/Logo.png" alt="Admin Logo">
+        <span>{{ 'SIDEBAR.ADMIN_PANEL' | translate }}</span>
+      </div>
+      <div class="logo-icon" *ngIf="isCollapsed">
+        <img src="../../../assets/Logo.png" alt="Admin Logo">
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a 
+            [class.active]="activeTab === 'dashboard'"
+            (click)="setActiveTab('dashboard')"
+          >
+            <i class="fas fa-tachometer-alt"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.DASHBOARD' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            [class.active]="activeTab === 'users'"
+            (click)="setActiveTab('users')"
+          >
+            <i class="fas fa-users"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.CUSTOMERS' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            [class.active]="activeTab === 'products'"
+            (click)="setActiveTab('products')"
+          >
+            <i class="fas fa-box"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.PRODUCTS' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            [class.active]="activeTab === 'orders'"
+            (click)="setActiveTab('orders')"
+          >
+            <i class="fas fa-shopping-cart"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.ORDERS' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            [class.active]="activeTab === 'vendors'"
+            (click)="setActiveTab('vendors')"
+          >
+            <i class="fas fa-store"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.SELLERS' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            [class.active]="activeTab === 'categories'"
+            (click)="setActiveTab('categories')"
+          >
+            <i class="fas fa-tags"></i>
+            <span *ngIf="!isCollapsed">{{ 'CATEGORIES.title' | translate }}</span>
+          </a>
+        </li>
+        <li>
+  <a 
+    [class.active]="activeTab === 'Display'"
+    (click)="setActiveTab('Display')"
+  >
+    <i class="fas fa-tv"></i> <!-- nouvelle icône pour Display -->
+    <span *ngIf="!isCollapsed">{{ 'SIDEBAR.DISPLAY' | translate }}</span>
+  </a>
+</li>
+
+        <li>
+          
+          <a 
+            [class.active]="activeTab === 'settings'"
+            (click)="setActiveTab('settings')"
+          >
+            <i class="fas fa-cog"></i>
+            <span *ngIf="!isCollapsed">{{ 'SIDEBAR.SETTINGS' | translate }}</span>
+          </a>
+        </li>
+        
+      </ul>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <a (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span *ngIf="!isCollapsed">{{ 'SIDEBAR.LOGOUT' | translate }}</span>
+      </a>
+    </div>
+</aside>

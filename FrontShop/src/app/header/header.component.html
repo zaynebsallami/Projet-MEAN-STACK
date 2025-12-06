@@ -1,0 +1,198 @@
+<nav class="navbar">
+  <!-- Logo -->
+  <div class="logo" (click)="scrollToTop()">
+    {{ 'VENDORHUB' | translate }}
+  </div>
+
+  <!-- Navigation Links -->
+  <div class="nav-links">
+    <a routerLink="/" (click)="scrollToTop()">{{ 'HOME' | translate }}</a>
+
+    <!-- Beautiful Category Dropdown -->
+    <div class="dropdownc">
+      <a class="dropdown-togglec" 
+         [class.open]="isCategoryDropdownOpen"
+         (click)="toggleCategoryDropdown()">
+        {{ 'CATEGORIES.title' | translate }}
+      </a>
+
+      <div class="dropdown-menuc" [ngClass]="{'open': isCategoryDropdownOpen}">
+        <!-- Simple minimal header -->
+        <div class="dropdown-header-simple">
+          <h4>{{ 'CATEGORIES.title' | translate }}</h4>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="categories-grid">
+          <div class="category-card" 
+               *ngFor="let category of categories"
+               [class.active]="category._id === selectedCategory?._id">
+            
+            <!-- Category Icon -->
+            <div class="category-icon">
+              <i class="fa fa-cube"></i>
+            </div>
+            
+            <!-- Category Info - Make this clickable for category -->
+            <div class="category-info" (click)="selectCategory(category)">
+              <div class="category-name">{{ category.name | translate }}</div>
+              <div class="category-count">{{ category.productCount || 0 }} {{ 'TEXT.PRODUCTS_NAME' | translate }}</div>
+            </div>
+            
+            <!-- Subcategories Preview - Make these directly clickable -->
+            <div class="subcategories-preview" *ngIf="category.subcategories?.length">
+              <div class="subcategory-label">{{ 'SUBCATEGORIES' | translate }}:</div>
+              <span class="subcategory-tag" 
+                    *ngFor="let sub of category.subcategories?.slice(0, 4) || []"
+                    (click)="navigateToSubcategory(category._id, sub._id)"
+                    [title]="sub.name">
+               {{ sub.name | translate }}
+
+              </span>
+              <span class="subcategory-tag more-tag" 
+                    *ngIf="category.subcategories && category.subcategories.length > 4"
+                    (click)="selectCategory(category)">
+                +{{ category.subcategories.length - 4 }} {{ 'MORE' | translate }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- View All Categories Link -->
+        <div class="view-all-link">
+          <a routerLink="/category" (click)="toggleCategoryDropdown()">
+            <span>{{ 'VIEW_ALL_CATEGORIES' | translate }}</span>
+            <i class="fa fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <a routerLink="/sellers" (click)="scrollToTop()">{{ 'SELLERS' | translate }}</a>
+
+       <!-- User Profile Dropdown -->
+<div class="profile-container">
+  <div class="profile-icon" (click)="toggleDropdown()" tabindex="0">
+    <i class="fa fa-user"></i>
+    <span class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected"></span>
+  </div>
+<nav class="dropdown-menu" *ngIf="isDropdownOpen">
+  <ul>
+    <ng-container *ngIf="isConnected; else notLoggedInMenu">
+<li *ngIf="role === 'vendeur'">
+  <button [routerLink]="['/dashboard/seller-dashboard']" (click)="closeDropdown()">
+    <i class="fa fa-user-circle"></i>
+    <span>Profile</span>
+  </button>
+</li>
+
+<li *ngIf="role === 'client'">
+  <button [routerLink]="['/profile-client']" (click)="closeDropdown()">
+    <i class="fa fa-user-circle"></i>
+    <span>Profile</span>
+  </button>
+</li>
+
+      <!-- Logout for both -->
+      <li>
+        <button (click)="logout()">
+          <i class="fa fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </li>
+    </ng-container>
+      <ng-template #notLoggedInMenu>
+        <li>
+                <button [routerLink]="['/login-se']" [queryParams]="{ form: 'login' }" (click)="closeDropdown()">
+        <i class="fa fa-sign-in-alt"></i>
+        <span>Login</span>
+      </button>
+        </li>
+        <li>
+                  <button [routerLink]="['/login-se']" [queryParams]="{ form: 'signup' }" (click)="closeDropdown()">
+          <i class="fa fa-user-plus"></i>
+          <span>Signup</span>
+        </button>
+        </li>
+        
+      </ng-template>
+    </ul>
+  </nav>
+</div>
+    <!-- Icons -->
+  <div class="icons">
+  <!-- Wishlist Icon with Count -->
+<a 
+  [routerLink]="isConnected ? '/wishlist' : null" 
+  *ngIf="isLoggedIn && role === 'client'"
+  (click)="handleWishlistClick($event)" 
+  title="{{ 'WISHLIST.TITLE' | translate }}">
+  <i class="fa fa-heart"></i>
+  <span class="wishlist-count" *ngIf="wishlistCount > 0 && isConnected">{{ wishlistCount }}</span>
+</a>
+
+<!-- Cart Icon with Count -->
+<a 
+  [routerLink]="isConnected ? '/panier' : null" 
+  *ngIf="isLoggedIn && role === 'client'"
+  (click)="handleCartClick($event)" 
+  title="{{ 'CART.TITLE' | translate }}">
+  <i class="fa fa-shopping-cart"></i>
+  <span class="cart-count" *ngIf="cartCount > 0 && isConnected">{{ cartCount }}</span>
+</a>
+
+  <i class="fa fa-moon" (click)="toggleDarkMode()" title="{{ 'DARK_MODE' | translate }}"></i>
+</div>  </div>
+
+  <!-- Language Selector -->
+  <div class="language-selector">
+    <div class="select">
+      <div class="selected" (click)="toggleLanguageDropdown()">
+        {{ currentLang | uppercase }}
+        <i class="fa fa-angle-down"></i>
+      </div>    
+      <div class="options" *ngIf="isLanguageOpen">
+        <div title="English">
+          <input
+            id="english"
+            name="language"
+            type="radio"
+            value="en"
+            [checked]="currentLang === 'en'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="english">English</label>
+        </div>
+        <div title="Français">
+          <input
+            id="french"
+            name="language"
+            type="radio"
+            value="fr"
+            [checked]="currentLang === 'fr'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="french">Français</label>
+        </div>
+        <div title="العربية">
+          <input
+            id="arabic"
+            name="language"
+            type="radio"
+            value="ar"
+            [checked]="currentLang === 'ar'"
+            (change)="changeLanguage($event)"
+          />
+          <label class="option" for="arabic">العربية</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="simple-modal" *ngIf="modalMessage">
+  <div class="modal-backdrop" (click)="closeModal()"></div>
+  <div class="modal-content">
+    <p>{{ modalMessage }}</p>
+    <button (click)="closeModal()">{{ 'CLOSE' | translate }}</button>
+  </div>
+</div>

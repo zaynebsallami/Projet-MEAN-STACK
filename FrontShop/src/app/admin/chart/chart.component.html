@@ -1,0 +1,15 @@
+<div class="chart-container">
+    <canvas #chartCanvas></canvas>
+    
+    <div class="chart-legend" *ngIf="showLegend && chartInstance">
+      <div class="legend-item" *ngFor="let dataset of chartInstance.data.datasets; let i = index">
+        <div class="legend-color" [style.background-color]="dataset.backgroundColor"></div>
+        <span>{{ dataset.label }}</span>
+      </div>
+    </div>
+    
+    <div class="chart-empty" *ngIf="!data || data.length === 0">
+      <i class="fas fa-chart-bar"></i>
+      <p>No data available</p>
+    </div>
+  </div>

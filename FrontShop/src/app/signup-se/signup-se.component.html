@@ -1,0 +1,117 @@
+<div class="container">
+    <main>
+      <section [@fadeIn]>
+        <h2 class="heading" [@fadeInTitle]>Your Page Title</h2>
+        
+        <!-- Form before submission -->
+        <form *ngIf="!formSubmitted" (ngSubmit)="onBusinessSubmit()" #vendorForm="ngForm" [@formContainer]>
+          
+          <div class="form-group" [@fadeInItem]>
+            <label for="businessName" class="forms_field-label">Business Name</label>
+        <input type="text" id="businessName" placeholder="Enter your business name" class="forms_field-input"
+          [(ngModel)]="businessName" name="businessName" required />
+          </div>
+  
+         <div class="form-group" [@fadeInItem]>
+  <label for="category" class="forms_field-label">Category</label>
+  <select id="category" class="forms_field-input"
+    [(ngModel)]="selectedCategory" name="category" required>
+    <option value="">Select a category</option>
+    <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+  </select>
+</div>
+  
+          <div class="form-group" [@fadeInItem]>
+            <label for="description" class="forms_field-label">Tell us about your products</label>
+        <textarea id="description" placeholder="Enter your business description" class="forms_field-input"
+          [(ngModel)]="description" name="description" required></textarea>
+          </div>
+  
+          <div class="form-group" [@fadeInItem]>
+            <label for="pdf-upload" class="file-label">Access Document (PDF)</label>
+  <div class="file-input-group">
+    <!-- Champ de fichier caché -->
+    <input 
+      id="pdf-upload" 
+      type="file" 
+      accept=".pdf" 
+      (change)="onFileChange($event)" 
+      hidden 
+    
+      #pdfFileInput
+    >
+    <!-- Bouton pour ouvrir le champ de fichier -->
+    <button 
+      type="button" 
+      class="file-button" 
+      (click)="triggerFileInput(pdfFileInput)"
+    >
+      <span class="icon">📄</span>
+      {{ fileName ? fileName : 'Choose a PDF file' }}
+    </button>
+  </div>
+  <p class="small-text">
+    Please upload a PDF document containing the necessary information to verify your identity and the authenticity of your products.
+  </p>
+
+          </div>
+          <!-- New section for uploading store photo -->
+         <!-- Section pour télécharger une photo du magasin -->
+<div class="form-group" [@fadeInItem]>
+  <label for="store-photo" class="file-label">Store Photo</label>
+  <div class="file-input-group">
+    <!-- Input de fichier caché -->
+    <input 
+      id="store-photo" 
+      type="file" 
+      accept="image/*" 
+      (change)="onStorePhotoChange($event)" 
+      #fileInput 
+      style="display: none;"
+    >
+
+    <!-- Bouton pour déclencher le sélecteur de fichier -->
+    <button 
+      type="button" 
+      class="file-button" 
+      (click)="fileInput.click()"
+    >
+      Choose a Store Photo
+    </button>
+
+    <!-- Aperçu de l'image sélectionnée -->
+    <img 
+      *ngIf="selectedPhoto" 
+      [src]="selectedPhoto" 
+      alt="Store Photo Preview" 
+      style="width: 100px; height: 100px; margin-top: 10px;"
+    >
+  </div>
+
+  <p class="small-text">
+    Please upload a photo of your store. It helps us verify your business location.
+  </p>
+</div>
+
+  
+          <div class="form-group" [@fadeInItem]>
+            <button type="submit" class="submit-button">
+              Confirmation
+            </button>
+          </div>
+        </form>
+        <!-- Confirmation message after submission -->
+        <div *ngIf="formSubmitted" class="submitted" [@fadeInSuccess]>
+          <!-- Example of inline icon (can be replaced with an icon component) -->
+          <svg class="check-icon" width="64" height="64" viewBox="0 0 24 24">
+            <path fill="#28a745" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          <h3 class="success-title">Application Submitted!</h3>
+          <p class="success-message">
+            Thank you for your interest in joining VendorHub. We will review your application and contact you soon.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+  
